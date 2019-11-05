@@ -1,6 +1,8 @@
 <template>
   <div class="room">
     <div class="top">
+    </div>
+    <div class="middle">
       <div class="p1">
       </div>
       <div class="show">
@@ -13,14 +15,7 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-
-@Component
-export default class Room extends Vue {
-  @Prop() private msg!: string;
-}
-</script>
+<script src="./index.ts" lang="ts"/>
 
 <style scoped lang="less">
 .room {
@@ -29,6 +24,10 @@ export default class Room extends Vue {
   width: 100%;
   height: 100%;
   .top {
+    flex: 2;
+    background: yellow;
+  }
+  .middle {
     flex: 5;
     width: 100%;
     height: 100%;
