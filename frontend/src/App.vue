@@ -29,7 +29,7 @@ html, body {
   width: 100%;
   height: 100%;
 }
-html, body, #app {
+html, body, #app, p {
   padding: 0;
   margin: 0;
 }

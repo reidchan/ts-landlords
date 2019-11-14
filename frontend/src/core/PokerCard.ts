@@ -7,9 +7,11 @@ import { PokerType } from './PokerType';
 export default class PokerCard {
 
   // 类型
-  private type: PokerType;
+  public type: PokerType;
   // 点数
-  private points: number;
+  public points: number;
+  // 渲染样式
+  public style: any;
 
   constructor(type: PokerType, points: number) {
     this.type = type;

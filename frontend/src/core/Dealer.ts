@@ -1,11 +1,10 @@
+import PokerCard from './PokerCard';
+import { PokerType } from './PokerType';
+
 /**
  * 发牌器
  * @author Reid
  */
-
-import PokerCard from './PokerCard';
-import { PokerType } from './PokerType';
-
 export default class Dealer {
 
   // 卡牌

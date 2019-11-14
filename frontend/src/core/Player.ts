@@ -1,18 +1,23 @@
+import PokerCard from './PokerCard';
+
 /**
  * 玩家
  * @author Reid
  */
-import PokerCard from './PokerCard';
-
 export default class Player {
 
-  // 姓名
-  public name: string = '';
   // 卡牌
   public cards: PokerCard[] = [];
+  // 是否是地主
+  public isLandlord: boolean = false;
+  // 姓名
+  private name: string;
+  // 是否是地主
+  private isSelf: boolean;
 
-  constructor(name: string)  {
+  constructor(name: string, isSelf: boolean)  {
     this.name = name;
+    this.isSelf = isSelf;
   }
 
 }

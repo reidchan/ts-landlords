@@ -4,13 +4,46 @@
     </div>
     <div class="middle">
       <div class="p1">
+        <div class="figure">
+          <img class="avatar" src="@/assets/img/figure/farmer.png"/>
+          <div class="message">
+            <p>{{ player1.name }}</p>
+          </div>
+        </div>
+        <div class="card">
+          <img class="poker" src="@/assets/img/poker/back.png"/>
+          <p class="count">{{ player1.cards.length }}</p>
+        </div>
+        <div class="empty"></div>
       </div>
       <div class="show">
       </div>
       <div class="p2">
+        <div class="empty"></div>
+        <div class="card">
+          <img class="poker" src="@/assets/img/poker/back.png"/>
+          <p class="count">{{ player2.cards.length }}</p>
+        </div>
+        <div class="figure">
+          <img class="avatar" src="@/assets/img/figure/farmer.png"/>
+          <div class="message">
+            <p>{{ player2.name }}</p>
+          </div>
+        </div>
       </div>
     </div>
     <div class="bottom">
+      <div class="figure">
+        <img class="avatar" src="@/assets/img/figure/farmer.png"/>
+        <div class="message">
+          <p>{{ playerMe.name }}</p>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="card" v-for="(item, index) of playerMe.cards" :key="index">
+          <img :style="item.style"/>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -18,36 +51,5 @@
 <script src="./index.ts" lang="ts"/>
 
 <style scoped lang="less">
-.room {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  .top {
-    flex: 2;
-    background: yellow;
-  }
-  .middle {
-    flex: 5;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    .p1 {
-      flex: 1;
-      background: red;
-    }
-    .show {
-      flex: 1;
-      background: blue;
-    }
-    .p2 {
-      flex: 1;
-      background: purple;
-    }
-  }
-  .bottom {
-    flex: 4;
-    background: green;
-  }
-}
+@import url('./index.less');
 </style>
