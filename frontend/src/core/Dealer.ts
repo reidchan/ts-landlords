@@ -31,13 +31,13 @@ export default class Dealer {
    * 初始化卡牌
    */
   private initCards(): void {
-    this.cards.push(new PokerCard(PokerType.Jocker, 1));
-    this.cards.push(new PokerCard(PokerType.Jocker, 2));
+    this.cards.push(new PokerCard(PokerType.Jocker, 16, 'joker-16'));
+    this.cards.push(new PokerCard(PokerType.Jocker, 17, 'joker-17'));
     for (let i = 1; i <= 13; i++) {
-      this.cards.push(new PokerCard(PokerType.Hearts, i));
-      this.cards.push(new PokerCard(PokerType.Spades, i));
-      this.cards.push(new PokerCard(PokerType.Clubs, i));
-      this.cards.push(new PokerCard(PokerType.Diamonds, i));
+      this.cards.push(new PokerCard(PokerType.Hearts, i + 2, `hearts-${i + 2}`));
+      this.cards.push(new PokerCard(PokerType.Spades, i + 2, `spades-${i + 2}`));
+      this.cards.push(new PokerCard(PokerType.Clubs, i + 2, `clubs-${i + 2}`));
+      this.cards.push(new PokerCard(PokerType.Diamonds, i + 2, `diamonds-${i + 2}`));
     }
   }
 

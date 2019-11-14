@@ -20,4 +20,13 @@ export default class Player {
     this.isSelf = isSelf;
   }
 
+  /**
+   * 将卡牌按大到小排序
+   */
+  public sortCard() {
+    this.cards = this.cards.sort((a: PokerCard, b: PokerCard) => {
+      return b.points - a.points;
+    });
+  }
+
 }

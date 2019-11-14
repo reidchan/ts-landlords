@@ -10,12 +10,15 @@ export default class PokerCard {
   public type: PokerType;
   // 点数
   public points: number;
+  // 点数
+  public imgUrl: string;
   // 渲染样式
   public style: any;
 
-  constructor(type: PokerType, points: number) {
+  constructor(type: PokerType, points: number, imgUrl: string) {
     this.type = type;
     this.points = points;
+    this.imgUrl = imgUrl;
   }
 
 }

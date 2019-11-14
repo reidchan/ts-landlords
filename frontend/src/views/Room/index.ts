@@ -2,8 +2,13 @@ import { Component, Vue } from 'vue-property-decorator';
 import Dealer from '@/core/Dealer';
 import Player from '@/core/Player';
 import PokerCard from '@/core/PokerCard';
+import Card from '@/components/Card/index.vue';
 
-@Component
+@Component({
+  components: {
+    Card
+  },
+})
 export default class Room extends Vue {
   public playerMe: Player | undefined;
   public player1: Player | undefined;
@@ -25,13 +30,16 @@ export default class Room extends Vue {
       }
     }
 
+    players.forEach((p: Player) => {
+      p.sortCard();
+    });
+
     // let confirmLandlord = false;
     // while (!confirmLandlord) {
     // }
     this.player1 = players[0];
     this.player2 = players[1];
     this.playerMe = players[2];
-
 
     this.playerMe.cards.map((card: PokerCard, index: number) =>  {
       card.style  = {
