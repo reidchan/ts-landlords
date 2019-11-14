@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="cards">
-        <div class="card" v-for="(card, index) of playerMe.cards" :key="index">
+        <div :class="{ card: true, active: true }" v-for="(card, index) of playerMe.cards" :key="index" @click="onCardClick(index)">
           <Card :card="card" :style="card.style"/>
         </div>
       </div>

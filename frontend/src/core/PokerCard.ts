@@ -12,6 +12,8 @@ export default class PokerCard {
   public points: number;
   // 点数
   public imgUrl: string;
+  // 是否被选中
+  public active: boolean = false;
   // 渲染样式
   public style: any;
 

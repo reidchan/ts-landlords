@@ -14,6 +14,17 @@ export default class Room extends Vue {
   public player1: Player | undefined;
   public player2: Player | undefined;
 
+  /**
+   * 卡牌被点击
+   * @param index 索引
+   */
+  public onCardClick(index: number): void {
+    const playerMe = this.playerMe as Player;
+    const card: PokerCard = playerMe.cards[index];
+    card.active = !card.active;
+    playerMe.cards.splice(index, 1, card);
+  }
+
   private created() {
     const dealer = new Dealer();
     dealer.shuffle();
