@@ -17,6 +17,16 @@
         <div class="empty"></div>
       </div>
       <div class="show">
+
+        <div class="operation">
+          <div class="call-landlord">
+            <button class="operation-button orange">叫地主</button>
+            <button class="operation-button blue">抢地主</button>
+            <button class="operation-button blue">不抢</button>
+          </div>
+          <div class="play-card">
+          </div>
+        </div>
       </div>
       <div class="p2">
         <div class="empty"></div>
@@ -40,7 +50,7 @@
         </div>
       </div>
       <div class="cards">
-        <div :class="{ card: true, active: true }" v-for="(card, index) of playerMe.cards" :key="index" @click="onCardClick(index)">
+        <div :class="{ card: true, active: card.active }" v-for="(card, index) of playerMe.cards" :key="index" @click="onCardClick(index)">
           <Card :card="card" :style="card.style"/>
         </div>
       </div>

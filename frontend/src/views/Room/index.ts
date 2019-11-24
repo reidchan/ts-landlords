@@ -14,6 +14,14 @@ export default class Room extends Vue {
   public player1: Player | undefined;
   public player2: Player | undefined;
 
+  public data() {
+    return {
+      playerMe: undefined,
+      player1:  undefined,
+      player2:  undefined
+    };
+  }
+
   /**
    * 卡牌被点击
    * @param index 索引
