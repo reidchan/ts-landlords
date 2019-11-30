@@ -19,12 +19,14 @@
       <div class="show">
 
         <div class="operation">
-          <div class="call-landlord">
+          <div class="play-card" v-if="showPlayCard">
+            <button class="operation-button blue">要不起</button>
+            <button class="operation-button orange" @click="knockout">出牌</button>
+          </div>
+          <div class="call-landlord" v-if="showCallLandlord">
             <button class="operation-button orange">叫地主</button>
             <button class="operation-button blue">抢地主</button>
             <button class="operation-button blue">不抢</button>
-          </div>
-          <div class="play-card">
           </div>
         </div>
       </div>

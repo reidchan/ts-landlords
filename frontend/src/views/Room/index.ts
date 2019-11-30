@@ -1,7 +1,10 @@
 import { Component, Vue } from 'vue-property-decorator';
+import { PockerMethod } from '@/core/PockerMethod';
+
 import Dealer from '@/core/Dealer';
 import Player from '@/core/Player';
 import PokerCard from '@/core/PokerCard';
+import PockerMethodDecider from '@/core/PockerMethodDecider';
 import Card from '@/components/Card/index.vue';
 
 @Component({
@@ -13,12 +16,16 @@ export default class Room extends Vue {
   public playerMe: Player | undefined;
   public player1: Player | undefined;
   public player2: Player | undefined;
+  public showPlayCard: boolean = true;
+  public showCallLandlord: boolean = false;
 
   public data() {
     return {
       playerMe: undefined,
       player1:  undefined,
-      player2:  undefined
+      player2:  undefined,
+      showPlayCard: true,
+      showCallLandlord: false
     };
   }
 
@@ -33,7 +40,21 @@ export default class Room extends Vue {
     playerMe.cards.splice(index, 1, card);
   }
 
-  private created() {
+  /**
+   * 打出牌
+   */
+  public knockout() {
+    const playerMe = this.playerMe as Player;
+    // 被选中的卡牌
+    const activeCards = playerMe.cards.filter((card: PokerCard) => {
+      if (card.active) {
+        return card;
+      }
+    });
+    const method: PockerMethod = PockerMethodDecider.getMethod(activeCards);
+  }
+
+  public created() {
     const dealer = new Dealer();
     dealer.shuffle();
 

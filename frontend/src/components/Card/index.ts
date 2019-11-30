@@ -4,8 +4,4 @@ import PokerCard from '@/core/PokerCard';
 @Component
 export default class Card extends Vue {
   @Prop(Object) private readonly card: PokerCard | undefined;
-
-  public created() {
-  }
-
 }
