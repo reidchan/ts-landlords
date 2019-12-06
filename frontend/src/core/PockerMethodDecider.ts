@@ -1,5 +1,6 @@
 import PokerCard from '@/core/PokerCard';
 import { PockerMethod } from '@/core/PockerMethod';
+import { PokerType } from './PokerType';
 
 /**
  * 打法决定者
@@ -32,18 +33,33 @@ export default class PockerMethodDecider {
       return PockerMethod.EMPTY;
     }
 
+    // 单张
     if (cards.length === 1) {
       return PockerMethod.SINGLE;
     }
 
+    // 王炸
+    if (cards.length === 2 && cardPointCountMap.size === 2
+      && cards[0].type === PokerType.Jocker && cards[1].type === PokerType.Jocker) {
+      return PockerMethod.BOOM;
+    }
+
+    // 对子
     if (cards.length === 2 && cardPointCountMap.size === 1) {
       return PockerMethod.DOUBLE;
     }
 
+    // 三张牌
     if (cards.length === 3 && cardPointCountMap.size === 1) {
       return PockerMethod.THREE;
     }
 
+    // 炸弹
+    if (cards.length === 4 && cardPointCountMap.size === 1) {
+      return PockerMethod.BOOM;
+    }
+
+    // 三带一
     if (cards.length === 4 && cardPointCountMap.size === 2) {
       for (const count of cardPointCountMap.values()) {
         if (count === 3 || count === 1) {
@@ -52,6 +68,7 @@ export default class PockerMethodDecider {
       }
     }
 
+    // 三带二
     if (cards.length === 5 && cardPointCountMap.size === 2) {
       for (const count of cardPointCountMap.values()) {
         if (count === 3 || count === 2) {
@@ -60,6 +77,7 @@ export default class PockerMethodDecider {
       }
     }
 
+    // 单顺
     if (cards.length >= 5 && cardPointCountMap.size === cards.length) {
       const cardPoints: number[] = [];
       for (const card of cards) {
@@ -70,6 +88,7 @@ export default class PockerMethodDecider {
       }
     }
 
+    // 双顺
     if (cards.length % 2 === 0 && cards.length / 2 >= 3) {
       let flag: boolean = true;
       for (const value of cardPointCountMap.values()) {
@@ -90,6 +109,7 @@ export default class PockerMethodDecider {
       }
     }
 
+    // 三顺
     if (cards.length % 3 === 0 && cards.length / 3 >= 2) {
       let flag: boolean = true;
       for (const value of cardPointCountMap.values()) {
@@ -106,6 +126,52 @@ export default class PockerMethodDecider {
         }
         if (this.checkContinuous(cardPoints)) {
           return PockerMethod.THREE_ROW;
+        }
+      }
+    }
+
+    // 三带一飞机
+    if (cards.length >= 8 && cardPointCountMap.size >= 4) {
+      let threeCount: number = 0;
+      let singleCount: number = 0;
+      const threePoints = [];
+
+      for (const point of cardPointCountMap.keys()) {
+        const count: number = cardPointCountMap.get(point) as number;
+        if (count === 3) {
+          threeCount++;
+          threePoints.push(point);
+        }
+        if (count === 1) {
+          singleCount++;
+        }
+      }
+      if (threeCount === singleCount && threeCount * 3 + singleCount === cards.length) {
+        if (this.checkContinuous(threePoints)) {
+          return PockerMethod.THREE_ROW_SINGLE;
+        }
+      }
+    }
+
+    // 三带二飞机
+    if (cards.length >= 10 && cardPointCountMap.size >= 4) {
+      let threeCount: number = 0;
+      let doubleCount: number = 0;
+      const threePoints = [];
+
+      for (const point of cardPointCountMap.keys()) {
+        const count: number = cardPointCountMap.get(point) as number;
+        if (count === 3) {
+          threeCount++;
+          threePoints.push(point);
+        }
+        if (count === 2) {
+          doubleCount++;
+        }
+      }
+      if (threeCount === doubleCount && threeCount * 3 + doubleCount * 2 === cards.length) {
+        if (this.checkContinuous(threePoints)) {
+          return PockerMethod.THREE_ROW_DOUBLE;
         }
       }
     }
