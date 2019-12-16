@@ -16,8 +16,9 @@
         </div>
         <div class="empty"></div>
       </div>
-      <div class="show">
 
+      <!-- 展示区 -->
+      <div class="show">
         <div class="operation">
           <div class="play-card" v-if="showPlayCard">
             <button class="operation-button blue">要不起</button>
@@ -29,7 +30,39 @@
             <button class="operation-button blue">不抢</button>
           </div>
         </div>
+
+       <!-- 自己出牌的展示区 -->
+        <div class="me-cards">
+          <div class="card-box">
+            <div class="card" v-for="(card, index) of player1.cards" :key="index">
+              <Card :card="card" :style="card.style"/>
+            </div>
+          </div>
+        </div>
+        <!-- # 自己出牌的展示区 -->
+
+        <!-- p1出牌的展示区 -->
+        <div class="p1-cards">
+          <div class="card-box">
+            <div class="card" v-for="(card, index) of player1.cards" :key="index">
+              <Card :card="card" :style="card.style"/>
+            </div>
+          </div>
+        </div>
+        <!-- # p1出牌的展示区 -->
+
+        <!-- p2出牌的展示区 -->
+        <!-- <div class="p2-cards">
+          <div class="card-box">
+            <div class="card" v-for="(card, index) of player2.cards" :key="index">
+              <Card :card="card" :style="card.style"/>
+            </div>
+          </div>
+        </div> -->
+        <!-- # p2出牌的展示区 -->
       </div>
+      <!-- # 展示区 -->
+
       <div class="p2">
         <div class="empty"></div>
         <div class="card">

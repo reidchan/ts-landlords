@@ -16,7 +16,7 @@ export default class Room extends Vue {
   public playerMe: Player | undefined;
   public player1: Player | undefined;
   public player2: Player | undefined;
-  public showPlayCard: boolean = true;
+  public showPlayCard: boolean = false;
   public showCallLandlord: boolean = false;
 
   public data() {
@@ -24,7 +24,7 @@ export default class Room extends Vue {
       playerMe: undefined,
       player1:  undefined,
       player2:  undefined,
-      showPlayCard: true,
+      showPlayCard: false,
       showCallLandlord: false
     };
   }
@@ -81,9 +81,23 @@ export default class Room extends Vue {
     this.player2 = players[1];
     this.playerMe = players[2];
 
-    this.playerMe.cards.map((card: PokerCard, index: number) =>  {
+    this.playerMe.cards = this.playerMe.cards.map((card: PokerCard, index: number) =>  {
       card.style  = {
-        left: `-${(70 * index)}%`
+        left: `-${60 * index}px`
+      };
+      return card;
+    });
+
+    this.player1.cards.map((card: PokerCard, index: number) =>  {
+      card.style  = {
+        left: `-${20 * index}px`
+      };
+      return card;
+    });
+
+    this.player2.cards.map((card: PokerCard, index: number) =>  {
+      card.style  = {
+        right: `-${20 * index}px`
       };
       return card;
     });

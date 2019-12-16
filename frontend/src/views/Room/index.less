@@ -91,6 +91,48 @@
           margin: 0 10px;
         }
       }
+
+      .card-box {
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        .card {
+          position: relative;
+          width: 30px;
+          height: 100%;
+          .poker-card {
+            position: absolute;
+            top: 0;
+            width: 30px;
+            height: 100%;
+          }
+        }
+      }
+
+      .me-cards {
+        position: absolute;
+        bottom: 10px;
+        width: auto;
+        height: 40px;
+      }
+
+      .p1-cards {
+        position: absolute;
+        left: 10px;
+        top: 30px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .p2-cards {
+        position: absolute;
+        right: 10px;
+        top: 30px;;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+      }
     }
     .p2 {
       flex: 1;
@@ -124,7 +166,7 @@
       height: 100%;
       .card {
         position: relative;
-        width: 80px;
+        width: 90px;
         height: 100%;
         .poker-card {
           position: absolute;
