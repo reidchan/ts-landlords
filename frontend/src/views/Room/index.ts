@@ -16,8 +16,22 @@ export default class Room extends Vue {
   public playerMe: Player | undefined;
   public player1: Player | undefined;
   public player2: Player | undefined;
+  // 出牌操作
   public showPlayCard: boolean = false;
+  // 叫地主操作
   public showCallLandlord: boolean = false;
+  // 我的出牌
+  public showMeCards: boolean = false;
+  // P1的出牌
+  public showP1Cards: boolean = false;
+  // P2的出牌
+  public showP2Cards: boolean = false;
+  // 我的出牌状态
+  public showMeState: boolean = false;
+  // P1的出牌状态
+  public showP1State: boolean = false;
+  // P2的出牌状态
+  public showP2State: boolean = false;
 
   public data() {
     return {
@@ -25,7 +39,13 @@ export default class Room extends Vue {
       player1:  undefined,
       player2:  undefined,
       showPlayCard: false,
-      showCallLandlord: false
+      showCallLandlord: false,
+      showMeCards: false,
+      showP1Cards: false,
+      showP2Cards: false,
+      showMeState: false,
+      showP1State: false,
+      showP2State: false
     };
   }
 
@@ -84,13 +104,6 @@ export default class Room extends Vue {
     this.playerMe.cards = this.playerMe.cards.map((card: PokerCard, index: number) =>  {
       card.style  = {
         left: `-${60 * index}px`
-      };
-      return card;
-    });
-
-    this.player1.cards.map((card: PokerCard, index: number) =>  {
-      card.style  = {
-        left: `-${20 * index}px`
       };
       return card;
     });

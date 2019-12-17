@@ -32,7 +32,7 @@
         </div>
 
        <!-- 自己出牌的展示区 -->
-        <div class="me-cards">
+        <div class="me-cards" v-if="showMeCards">
           <div class="card-box">
             <div class="card" v-for="(card, index) of player1.cards" :key="index">
               <Card :card="card" :style="card.style"/>
@@ -41,8 +41,14 @@
         </div>
         <!-- # 自己出牌的展示区 -->
 
+        <!-- 自己出牌状态 -->
+        <div class="me-state" v-if="playerMe.state">
+          <span>{{ playerMe.state }}</span>
+        </div>
+        <!-- # 自己出牌状态 -->
+
         <!-- p1出牌的展示区 -->
-        <div class="p1-cards">
+        <div class="p1-cards" v-if="showP1Cards">
           <div class="card-box">
             <div class="card" v-for="(card, index) of player1.cards" :key="index">
               <Card :card="card" :style="card.style"/>
@@ -51,15 +57,27 @@
         </div>
         <!-- # p1出牌的展示区 -->
 
+        <!-- p1出牌状态 -->
+        <div class="p1-state" v-if="player1.state">
+          <span>{{ player1.state }}</span>
+        </div>
+        <!-- # p1出牌状态 -->
+
         <!-- p2出牌的展示区 -->
-        <!-- <div class="p2-cards">
+        <div class="p2-cards" v-if="showP2Cards">
           <div class="card-box">
             <div class="card" v-for="(card, index) of player2.cards" :key="index">
-              <Card :card="card" :style="card.style"/>
+              <Card :card="card"/>
             </div>
           </div>
-        </div> -->
+        </div>
         <!-- # p2出牌的展示区 -->
+
+        <!-- p2出牌状态 -->
+        <div class="p2-state" v-if="player2.state">
+          <span>{{ player2.state }}</span>
+        </div>
+        <!-- # p2出牌状态 -->
       </div>
       <!-- # 展示区 -->
 
@@ -84,9 +102,16 @@
           <p>{{ playerMe.name }}</p>
         </div>
       </div>
-      <div class="cards">
-        <div :class="{ card: true, active: card.active }" v-for="(card, index) of playerMe.cards" :key="index" @click="onCardClick(index)">
-          <Card :card="card" :style="card.style"/>
+      <div>
+    </div>
+
+      <div class="my-card">
+        <div class="cards">
+          <div class="card-box">
+            <div :class="{ card: true, active: card.active }" v-for="(card, index) of playerMe.cards" :key="index" @click="onCardClick(index)">
+              <Card :card="card"/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
