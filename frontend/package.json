@@ -16,6 +16,7 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@types/socket.io-client": "^1.4.32",
     "@vue/cli-plugin-babel": "^4.0.0",
     "@vue/cli-plugin-router": "^4.0.0",
     "@vue/cli-plugin-typescript": "^4.0.0",
@@ -23,6 +24,7 @@
     "@vue/cli-service": "^4.0.0",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
+    "socket.io-client": "^2.3.0",
     "typescript": "~3.5.3",
     "vue-template-compiler": "^2.6.10"
   }

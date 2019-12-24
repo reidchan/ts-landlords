@@ -14,5 +14,28 @@ export default (appInfo: EggAppInfo) => {
 
   config.welcomeMsg = 'Hello midwayjs!'
 
+  config.io = {
+    init: { },
+    namespace: {
+      '/': {
+        connectionMiddleware: [],
+        packetMiddleware: [],
+      },
+      '/example': {
+        connectionMiddleware: [],
+        packetMiddleware: [],
+      },
+    },
+  }
+  
+  config.redis = {
+    client: {
+      host: '127.0.0.1',
+      port: 5379,
+      password: '',
+      db: 3
+    }
+  }
+
   return config
 }

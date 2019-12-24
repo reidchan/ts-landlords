@@ -1,5 +1,6 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { PockerMethod } from '@/core/PockerMethod';
+import io from 'socket.io-client';
 
 import Dealer from '@/core/Dealer';
 import Player from '@/core/Player';
@@ -75,6 +76,11 @@ export default class Room extends Vue {
   }
 
   public created() {
+    const socket = io('ws://127.0.0.1:7001');
+    socket.on('open', () => {
+      console.log('open...');
+    });
+    socket.emit('online');
     const dealer = new Dealer();
     dealer.shuffle();
 
