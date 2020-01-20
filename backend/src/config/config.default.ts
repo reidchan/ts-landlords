@@ -28,13 +28,23 @@ export default (appInfo: EggAppInfo) => {
     },
   }
   
-  config.redis = {
-    client: {
-      host: '127.0.0.1',
-      port: 5379,
-      password: '',
-      db: 3
-    }
+  config.cache = {
+    host: '127.0.0.1',
+    port: 5379,
+    db: 3,
+    reconnectTime: 3
+  }
+
+  config.database = {
+    host: '127.0.0.1',
+    port: 2306,
+    username: 'root',
+    database: 'landlords',
+    synchronize: true,
+    logging: false,
+    entities: ['src/app/entity/model/**/*.ts'],
+    migrations: ['src/migration/**/*.ts'],
+    subscribers: ['src/subscriber/**/*.ts']
   }
 
   return config

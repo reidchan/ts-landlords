@@ -17,11 +17,15 @@
     "egg-redis": "^2.4.0",
     "eslint": "^6.0.0",
     "espower-typescript": "^9.0.2",
+    "ioredis": "^4.14.1",
     "midway-bin": "1",
     "midway-mock": "1",
     "mocha": "^6.2.0",
+    "mysql": "^2.17.1",
+    "reflect-metadata": "^0.1.13",
     "ts-node": "^8.3.0",
     "tslib": "^1.8.1",
+    "typeorm": "^0.2.22",
     "typescript": "^3.5.0"
   },
   "engines": {
