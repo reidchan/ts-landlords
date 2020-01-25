@@ -1,16 +1,22 @@
-import { EggPlugin } from 'midway'
+import { EggPlugin } from 'midway';
+
+
 export default {
   static: true,
   io: {
     enable: true,
-    package: 'egg-socket.io'
+    package: 'egg-socket.io',
   },
   redis: {
     enable: true,
-    package: 'egg-redis'
+    package: 'egg-redis',
   },
   security: {
     enable: false,
     package: 'egg-security',
   },
-} as EggPlugin
+  cors: {
+    enable: true,
+    package: 'egg-cors',
+  },
+} as EggPlugin;

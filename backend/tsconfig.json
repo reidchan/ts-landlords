@@ -4,7 +4,7 @@
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "incremental": true,
+    // "incremental": true,
     "inlineSourceMap": true,
     "module": "commonjs",
     "newLine": "lf",
@@ -17,7 +17,7 @@
     "strict": true,
     "stripInternal": true,
     "target": "ES2017",
-    "tsBuildInfoFile": ".vscode/.tsbuildinfo"
+    // "tsBuildInfoFile": ".vscode/.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts"

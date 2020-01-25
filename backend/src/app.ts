@@ -1,7 +1,9 @@
 import 'reflect-metadata';
+import { EggApplication } from 'midway';
+
 import { RedisProvider } from './framework/database/redis/RedisProvider';
 import { MysqlProvider } from './framework/database/mysql/MysqlProvider';
-import { EggApplication } from 'midway';
+
 
 class Application {
 
@@ -12,10 +14,11 @@ class Application {
     this.init();
   }
 
-  async init () {
+  public async init() {
     global.CACHE = await new RedisProvider(this.app, this.app.config.cache).connect();
     global.DATABASE = await new MysqlProvider(this.app, this.app.config.database).connect();
   }
+
 }
 
 export default Application;

@@ -1,12 +1,13 @@
-import { Context, controller, post, provide } from 'midway'
+import { Context, controller, post, provide } from 'midway';
 
 @provide()
 @controller('/room')
 export class RoomController {
 
-  @post('/')
+  @post('/:id')
   public create(ctx: Context): void {
-    ctx.body = '奥利给'
+    console.log('ctx', ctx.params.id);
+    ctx.body = '奥利给';
   }
 
 }

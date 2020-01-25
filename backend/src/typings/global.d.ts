@@ -1,6 +1,6 @@
 declare namespace NodeJS {
   interface Global {
-    CACHE: any;
-    DATABASE: any;
+    CACHE: ReidsClient
+    DATABASE: any
   }
 }
