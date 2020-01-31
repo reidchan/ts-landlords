@@ -1,0 +1,7 @@
+export enum RoomState {
+  READY,
+  CALL_LANDLORD,
+  LOOT_LANDLORD,
+  PLAY_CARDS,
+  GAME_OVER
+}

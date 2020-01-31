@@ -26,11 +26,11 @@ declare class ReidsClient {
 
   public hset(key: string, field: string, value: any): Promise<number>;
 
-  public hmset(key: string, keyValues: Map<string, string>): Promise<string>;
+  public hmset(key: string, keyValues: Map<string, any>): Promise<string>;
 
   public hget(key: string, field: string): Promise<any>;
 
-  public hgetAll(key: string): Promise<Map<string, string>>;
+  public hgetall(key: string): Promise<any>;
 
   public hdel(key: string, field: string): Promise<number>;
 
