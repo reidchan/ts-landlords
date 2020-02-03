@@ -1,5 +1,5 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import PokerCard from '@/core/PokerCard';
+import { PokerCard } from 'landlord-core';
 
 @Component
 export default class Card extends Vue {

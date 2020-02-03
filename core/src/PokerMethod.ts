@@ -2,7 +2,7 @@
  * 扑克打法
  * @author Reid
  */
-export enum PockerMethod {
+export enum PokerMethod {
   // 没打牌
   EMPTY,
   // 单张

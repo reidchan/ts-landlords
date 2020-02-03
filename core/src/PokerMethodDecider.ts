@@ -1,12 +1,12 @@
-import PokerCard from '@/core/PokerCard';
-import { PockerMethod } from '@/core/PockerMethod';
+import PokerCard from './PokerCard';
+import { PokerMethod } from './PokerMethod';
 import { PokerType } from './PokerType';
 
 /**
  * 打法决定者
  * @author Reid
  */
-export default class PockerMethodDecider {
+export default class PokerMethodDecider {
 
   /**
    * 获取打法
@@ -30,40 +30,40 @@ export default class PockerMethodDecider {
     });
 
     if (cards.length === 0) {
-      return PockerMethod.EMPTY;
+      return PokerMethod.EMPTY;
     }
 
     // 单张
     if (cards.length === 1) {
-      return PockerMethod.SINGLE;
+      return PokerMethod.SINGLE;
     }
 
     // 王炸
     if (cards.length === 2 && cardPointCountMap.size === 2
       && cards[0].type === PokerType.Jocker && cards[1].type === PokerType.Jocker) {
-      return PockerMethod.BOOM;
+      return PokerMethod.BOOM;
     }
 
     // 对子
     if (cards.length === 2 && cardPointCountMap.size === 1) {
-      return PockerMethod.DOUBLE;
+      return PokerMethod.DOUBLE;
     }
 
     // 三张牌
     if (cards.length === 3 && cardPointCountMap.size === 1) {
-      return PockerMethod.THREE;
+      return PokerMethod.THREE;
     }
 
     // 炸弹
     if (cards.length === 4 && cardPointCountMap.size === 1) {
-      return PockerMethod.BOOM;
+      return PokerMethod.BOOM;
     }
 
     // 三带一
     if (cards.length === 4 && cardPointCountMap.size === 2) {
       for (const count of cardPointCountMap.values()) {
         if (count === 3 || count === 1) {
-          return PockerMethod.THREE_ROW;
+          return PokerMethod.THREE_ROW;
         }
       }
     }
@@ -72,7 +72,7 @@ export default class PockerMethodDecider {
     if (cards.length === 5 && cardPointCountMap.size === 2) {
       for (const count of cardPointCountMap.values()) {
         if (count === 3 || count === 2) {
-          return PockerMethod.THREE_DOUBLE;
+          return PokerMethod.THREE_DOUBLE;
         }
       }
     }
@@ -84,7 +84,7 @@ export default class PockerMethodDecider {
         cardPoints.push(card.points);
       }
       if (this.checkContinuous(cardPoints)) {
-        return PockerMethod.THREE_DOUBLE;
+        return PokerMethod.THREE_DOUBLE;
       }
     }
 
@@ -104,7 +104,7 @@ export default class PockerMethodDecider {
           cardPoints.push(key);
         }
         if (this.checkContinuous(cardPoints)) {
-          return PockerMethod.DOUBLE_ROW;
+          return PokerMethod.DOUBLE_ROW;
         }
       }
     }
@@ -125,7 +125,7 @@ export default class PockerMethodDecider {
           cardPoints.push(key);
         }
         if (this.checkContinuous(cardPoints)) {
-          return PockerMethod.THREE_ROW;
+          return PokerMethod.THREE_ROW;
         }
       }
     }
@@ -148,7 +148,7 @@ export default class PockerMethodDecider {
       }
       if (threeCount === singleCount && threeCount * 3 + singleCount === cards.length) {
         if (this.checkContinuous(threePoints)) {
-          return PockerMethod.THREE_ROW_SINGLE;
+          return PokerMethod.THREE_ROW_SINGLE;
         }
       }
     }
@@ -171,7 +171,7 @@ export default class PockerMethodDecider {
       }
       if (threeCount === doubleCount && threeCount * 3 + doubleCount * 2 === cards.length) {
         if (this.checkContinuous(threePoints)) {
-          return PockerMethod.THREE_ROW_DOUBLE;
+          return PokerMethod.THREE_ROW_DOUBLE;
         }
       }
     }

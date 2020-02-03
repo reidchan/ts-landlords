@@ -18,6 +18,9 @@
     "stripInternal": true,
     "target": "ES2017",
     // "tsBuildInfoFile": ".vscode/.tsbuildinfo"
+    "types": [
+      "landlord-core"
+    ]
   },
   "include": [
     "src/**/*.ts"

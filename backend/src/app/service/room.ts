@@ -1,10 +1,9 @@
 import { Service } from 'midway';
 import { isEmpty } from 'lodash';
+import { RoomState } from 'landlord-core';
 
 import CacheKeyBuilder from '../entity/builder/CacheKeyBuilder';
 
-import RoomInfo from './room/RoomInfo';
-import { RoomState } from './room/RoomState';
 
 /**
  * 房间逻辑相关

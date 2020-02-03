@@ -1,4 +1,4 @@
-import PockerRecord from './PockerRecord';
+import PokerRecord from './PokerRecord';
 
 /**
  * 比较器
@@ -10,7 +10,7 @@ export default class Comparer {
    * 比较a与b的大小
    * @returns 小于或等于0不能打、大于0能打
    */
-  public compare(a: PockerRecord, b: PockerRecord): number {
+  public static compare(a: PokerRecord, b: PokerRecord): number {
     if (a.method === b.method) {
       return -1;
     }

@@ -1,4 +1,4 @@
-import PokerCard from './PokerCard';
+import { PokerCard } from 'landlord-core';
 
 /**
  * 玩家

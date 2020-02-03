@@ -1,14 +1,10 @@
 import { Component, Vue } from 'vue-property-decorator';
-import { PockerMethod } from '@/core/PockerMethod';
 import io from 'socket.io-client';
 import { isEmpty } from 'lodash';
 
-import Dealer from '@/core/Dealer';
 import Player from '@/core/Player';
-import PokerCard from '@/core/PokerCard';
-import PockerMethodDecider from '@/core/PockerMethodDecider';
+import { Dealer, PokerMethod, PokerCard, PokerMethodDecider, RoomState } from 'landlord-core';
 import Card from '@/components/Card/index.vue';
-import { RoomState } from './RoomState';
 import ArrayUtils from '@/util/ArrayUtils';
 
 @Component({
@@ -75,7 +71,7 @@ export default class Room extends Vue {
         return card;
       }
     });
-    const method: PockerMethod = PockerMethodDecider.getMethod(activeCards);
+    const method: PokerMethod = PokerMethodDecider.getMethod(activeCards);
   }
 
   public created() {

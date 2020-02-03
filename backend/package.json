@@ -43,7 +43,8 @@
     "cov": "midway-bin cov --ts",
     "lint": "eslint --fix {src,test}/**/*.ts",
     "ci": "npm run cov",
-    "build": "midway-bin build -c"
+    "build": "midway-bin build -c",
+    "install-core": "ln -nsf ../../core node_modules/landlord-core"
   },
   "ci": {
     "version": "8, 10"

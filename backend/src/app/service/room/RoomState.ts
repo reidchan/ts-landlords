@@ -1,9 +1,0 @@
-export enum RoomState {
-  WAIT,
-  READY,
-  CALL_LANDLORD,
-  LOOT_LANDLORD,
-  GAME_START,
-  PLAY_CARDS,
-  GAME_OVER
-}
