@@ -13,7 +13,9 @@ export default class Player {
   // 状态
   public state: string | undefined;
   // 姓名
-  private name: string;
+  public name: string;
+  // 玩家id
+  public id: string | undefined;
   // 是否是地主
   private isSelf: boolean;
 

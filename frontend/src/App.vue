@@ -18,7 +18,7 @@ export default {
         'transform-origin': 'center center',
         '-webkit-transform-origin': 'center center',
         'overflow': 'hidden'
-      }
+      };
     }
   }
 }

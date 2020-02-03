@@ -10,11 +10,10 @@
             <p>{{ player1.name }}</p>
           </div>
         </div>
-        <div class="card">
+        <div class="card" v-if="isRoomGameStart">
           <img class="poker" src="@/assets/img/poker/back.png"/>
           <p class="count">{{ player1.cards.length }}</p>
         </div>
-        <div class="empty"></div>
       </div>
 
       <!-- 展示区 -->
@@ -82,8 +81,7 @@
       <!-- # 展示区 -->
 
       <div class="p2">
-        <div class="empty"></div>
-        <div class="card">
+        <div class="card" v-if="isRoomGameStart">
           <img class="poker" src="@/assets/img/poker/back.png"/>
           <p class="count">{{ player2.cards.length }}</p>
         </div>
@@ -106,7 +104,10 @@
     </div>
 
       <div class="my-card">
-        <div class="cards">
+        <div class="not-start" v-if="isRoomWait">
+          <p>玩家人数还不够呢，请等待玩家进入...</p>
+        </div>
+        <div class="cards" v-else>
           <div class="card-box">
             <div :class="{ card: true, active: card.active }" v-for="(card, index) of playerMe.cards" :key="index" @click="onCardClick(index)">
               <Card :card="card"/>

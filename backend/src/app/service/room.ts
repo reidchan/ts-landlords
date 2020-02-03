@@ -20,29 +20,38 @@ export default class RoomService extends Service {
     const { app, ctx } = this as any;
     ctx.socket.join(roomId);
     const nsp = app.io.of('/');
-    nsp.to(roomId).emit('open');
 
-    await this.createRoomInfo(roomId);
-    await this.createRoomUsers(roomId, userId);
+    const roomUsers: string[] = await this.getRoomUsers(roomId, userId);
+    const roomInfo: RoomInfo = await this.getRoomInfo(roomId);
+
+    nsp.to(roomId).emit('updateRoomInfo', {
+      roomInfo,
+      roomUsers,
+    });
+  }
+
+  /**
+   * 检查玩家是否在线
+   */
+  public async checkRoomUserState() {
+    console.log('奥利给');
   }
 
   /**
    * 创建房间信息
    * @param roomId
    */
-  private async createRoomInfo(roomId: string): Promise<void> {
+  private async getRoomInfo(roomId: string): Promise<RoomInfo> {
     let roomInfo: RoomInfo = await global.CACHE.hgetall(CacheKeyBuilder.roomInfo(roomId));
     if (isEmpty(roomInfo)) {
       roomInfo = {
         id: roomId,
         landlordId: '',
-        state: RoomState.READY,
+        state: RoomState.WAIT,
       };
-      const roomInfoMap: Map<string, any> = <any> roomInfo;
-      global.CACHE.hmset(CacheKeyBuilder.roomInfo(roomId), roomInfoMap);
-    } else {
-      console.log('roomInfo =>', roomInfo);
+      await this.updateRoomInfo(roomId, roomInfo);
     }
+    return roomInfo;
   }
 
   /**
@@ -50,13 +59,28 @@ export default class RoomService extends Service {
    * @param roomId
    * @param userId
    */
-  private async createRoomUsers(roomId: string, userId: string): Promise<void> {
-    const roomUsers: string[] = await global.CACHE.smembers(CacheKeyBuilder.roomUsers(roomId));
-    if (roomUsers.length < 3) {
-      global.CACHE.sadd(CacheKeyBuilder.roomUsers(roomId), userId);
-    } else {
-      console.log('roomUsers =>', roomUsers);
+  private async getRoomUsers(roomId: string, userId: string): Promise<string[]> {
+    let roomUsers: string[] = await global.CACHE.smembers(CacheKeyBuilder.roomUsers(roomId));
+    if (!roomUsers.includes(userId) && roomUsers.length < 3) {
+      roomUsers = roomUsers.concat(userId);
+      if (roomUsers.length === 3) {
+        const roomInfo: RoomInfo = await this.getRoomInfo(roomId);
+        roomInfo.state = RoomState.READY;
+        await this.updateRoomInfo(roomId, roomInfo);
+      }
+      await global.CACHE.sadd(CacheKeyBuilder.roomUsers(roomId), userId);
     }
+    return roomUsers;
+  }
+
+  /**
+   * 更新房间信息
+   * @param roomId
+   * @param roomInfo
+   */
+  private async updateRoomInfo(roomId: string, roomInfo: RoomInfo): Promise<void> {
+    const roomInfoMap: Map<string, any> = <any> roomInfo;
+    await global.CACHE.hmset(CacheKeyBuilder.roomInfo(roomId), roomInfoMap);
   }
 
   // const roomCards: string[] = await global.CACHE.del(CacheKeyBuilder.roomCards(roomId));
