@@ -134,7 +134,7 @@ export default class PokerMethodDecider {
     if (cards.length >= 8 && cardPointCountMap.size >= 4) {
       let threeCount: number = 0;
       let singleCount: number = 0;
-      const threePoints = [];
+      const threePoints : number[] = [];
 
       for (const point of cardPointCountMap.keys()) {
         const count: number = cardPointCountMap.get(point) as number;
@@ -157,7 +157,7 @@ export default class PokerMethodDecider {
     if (cards.length >= 10 && cardPointCountMap.size >= 4) {
       let threeCount: number = 0;
       let doubleCount: number = 0;
-      const threePoints = [];
+      const threePoints: number[] = [];
 
       for (const point of cardPointCountMap.keys()) {
         const count: number = cardPointCountMap.get(point) as number;

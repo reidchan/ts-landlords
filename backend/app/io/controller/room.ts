@@ -1,6 +1,5 @@
 import { Controller } from 'egg';
 
-
 export default class RoomController extends Controller {
 
   public async joinRoom(ctx: any) {
@@ -9,4 +8,3 @@ export default class RoomController extends Controller {
   }
 
 }
-

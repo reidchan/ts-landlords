@@ -1,6 +1,0 @@
-extends: '@waiting/eslint-config/recommended'
-
-rules:
-  "@typescript-eslint/no-unused-vars": 0
-  "eslint(@typescript-eslint/semi)": 1
-

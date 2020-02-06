@@ -1,4 +1,4 @@
-import { Service } from 'midway';
+import { Service } from 'egg';
 import { isEmpty } from 'lodash';
 import { RoomState } from 'landlord-core';
 

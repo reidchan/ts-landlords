@@ -1,6 +1,4 @@
-import { EggApplication } from 'midway';
-
-
+import { EggApplication } from 'egg';
 
 const Redis = require('ioredis');
 
@@ -11,7 +9,7 @@ export class RedisProvider {
 
   private config: ReidsConfig;
 
-  private connectCount: number = 0;
+  private connectCount: number;
 
   constructor(app: EggApplication, config: ReidsConfig) {
     this.app = app;
@@ -29,9 +27,7 @@ export class RedisProvider {
           this.connectCount++;
           return true;
         }
-        else {
-          return false;
-        }
+        return false;
       },
     });
     client.on('connect', () => {
