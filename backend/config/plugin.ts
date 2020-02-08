@@ -8,7 +8,7 @@ const plugin: EggPlugin = {
     package: 'egg-socket.io',
   },
   alinode: {
-    enable: true,
+    enable: false,
     package: 'egg-alinode',
   },
 };

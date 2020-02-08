@@ -1,4 +1,4 @@
-interface UpdateRoomInfoCallbackParams {
-  roomUsers: string[]
-  roomInfo: RoomInfo
+interface RoomViewQuery {
+  roomId: string,
+  userId: string
 }

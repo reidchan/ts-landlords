@@ -1,9 +1,9 @@
-export enum RoomState {
-  WAIT,
+export enum UserState {
+  NOT_READY,
   READY,
   CALL_LANDLORD,
   LOOT_LANDLORD,
-  GAME_START,
+  NOT_LOOT_LANDLORD,
   PLAY_CARDS,
   GAME_OVER
 }

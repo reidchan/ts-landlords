@@ -1,11 +1,10 @@
-import { Component, Vue } from 'vue-property-decorator';
 import io from 'socket.io-client';
+import { Component, Vue } from 'vue-property-decorator';
 import { isEmpty } from 'lodash';
 
 import Player from '@/core/Player';
-import { Dealer, PokerMethod, PokerCard, PokerMethodDecider, RoomState } from 'landlord-core';
+import { ArrayUtils, Dealer, PokerMethod, PokerCard, PokerMethodDecider, RoomState, UserState } from 'landlord-core';
 import Card from '@/components/Card/index.vue';
-import ArrayUtils from '@/util/ArrayUtils';
 
 @Component({
   components: {
@@ -13,7 +12,7 @@ import ArrayUtils from '@/util/ArrayUtils';
   },
 })
 export default class Room extends Vue {
-  public playerMe: Player = new Player('Me', false);
+  public playerMe: Player = new Player('Me', true);
   public player1: Player = new Player('[等待玩家进入]', false);
   public player2: Player = new Player('[等待玩家进入]', false);
   // 出牌操作
@@ -32,10 +31,13 @@ export default class Room extends Vue {
   public showP1State: boolean = false;
   // P2的出牌状态
   public showP2State: boolean = false;
+  public roomId!: string;
   // 房间状态
   public roomState: RoomState = RoomState.WAIT;
+  // socket
+  private socket!: SocketIOClient.Socket;
 
-  public get data() {
+  public data = () => {
     return {
       playerMe: undefined
     };
@@ -45,8 +47,12 @@ export default class Room extends Vue {
     return this.roomState === RoomState.WAIT;
   }
 
+  public get isRoomReady(): boolean {
+    return this.roomState === RoomState.READY && this.playerMe.state === UserState.NOT_READY;
+  }
+
   public get isRoomGameStart(): boolean {
-    return this.roomState !== RoomState.WAIT;
+    return this.roomState === RoomState.GAME_START;
   }
 
   /**
@@ -58,6 +64,18 @@ export default class Room extends Vue {
     const card: PokerCard = playerMe.cards[index];
     card.active = !card.active;
     playerMe.cards.splice(index, 1, card);
+  }
+
+  /**
+   * 准备按钮点击
+   */
+  public onClickReady(): void {
+    const params: ReadyUserParams = {
+      socketId: this.socket.id,
+      roomId: this.roomId,
+      userId: this.playerMe.id,
+    };
+    this.socket.emit('readyUser', params);
   }
 
   /**
@@ -75,45 +93,81 @@ export default class Room extends Vue {
   }
 
   public created() {
-    let { roomId, userId } = this.$route.query;
-    const socket = io('http://127.0.0.1:7001');
+    const { roomId, userId } = this.$route.query as unknown as RoomViewQuery;
+    this.socket = io('http://192.168.1.101:7001');
 
-    userId = userId as string;
-    roomId = roomId as string;
     if (userId) {
       this.playerMe.id = userId;
       this.playerMe.name = userId;
     }
+    this.roomId = roomId;
 
-    socket.on('updateRoomInfo', (param: UpdateRoomInfoCallbackParams) => {
-      const roomUserIds: string[] = param.roomUsers;
-      const roomInfo: RoomInfo = param.roomInfo;
-      ArrayUtils.remove(roomUserIds, userId);
-      if (roomUserIds[0] && isEmpty(this.player1.id)) {
-        this.player1.id = roomUserIds[0];
-        this.player1.name = roomUserIds[0];
+    this.socket.on('onInitRoom', (params: OnInitRoomCallbackParams) => {
+      const roomInfo: RoomInfo = params.roomInfo;
+      const userInfo: UserInfo = params.userInfo;
+      console.log('onInitRoom...', params);
+      const otherUserInfos: {[index: string]: UserInfo} = params.otherUserInfos;
+      for (const key of Object.keys(otherUserInfos)) {
+        const value = otherUserInfos[key];
+        if (isEmpty(this.player1.id)) {
+          this.fillPlayer(this.player1, value);
+        } else if (isEmpty(this.player2.id)) {
+          this.fillPlayer(this.player2, value);
+        }
       }
-      if (roomUserIds[1] && isEmpty(this.player2.id)) {
-        this.player2.id = roomUserIds[1];
-        this.player2.name = roomUserIds[1];
+      if (this.playerMe.id === userInfo.id) {
+        this.fillPlayer(this.playerMe, userInfo);
       }
       this.roomState = roomInfo.state;
     });
 
-    socket.on('connect', () => {
-      console.log('connect...');
-      socket.emit('joinRoom', {
-        roomId,
-        userId
-      });
+    this.socket.on('onUpdateRoomInfo', (params: OnInitRoomCallbackParams) => {
     });
 
-    socket.on('disconnect', () => {
-      socket.close();
+    this.socket.on('onUpdateUserInfo', (params: OnUpdateUserInfoCallbackParams) => {
+      const userInfo: UserInfo = params.userInfo;
+      let target = null;
+      if (userInfo.id === userId) {
+        target = 'playerMe';
+      } else if (this.player1.id && this.player1.id === userInfo.id) {
+        target = 'player1';
+      } else if (this.player2.id && this.player2.id === userInfo.id) {
+        target = 'player2';
+      }
+      if (target) {
+        const that = this as any;
+        const targetPlayer: Player = that[target] as Player;
+        targetPlayer.state = userInfo.state;
+        targetPlayer.cards = userInfo.cards;
+      }
+    });
+
+    this.socket.on('onPlayerReady', (playId: string) => {
+      console.log('onPlayerReady...', playId);
+      if (this.playerMe.id === playId) {
+        this.player1.state = UserState.READY;
+      } else {
+        this.player2.state = UserState.READY;
+      }
+    });
+
+    this.socket.on('connect', () => {
+      console.log('connect...');
+      const params: JoinRoomParams = {
+        socketId: this.socket.id,
+        roomId,
+        userId
+      };
+      this.socket.emit('joinRoom', params);
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('disconnect...');
+      this.socket.disconnect();
     });
 
     window.onbeforeunload = () => {
-      socket.close();
+      this.socket.disconnect();
     };
 
     // const dealer = new Dealer();
@@ -155,6 +209,12 @@ export default class Room extends Vue {
     //   };
     //   return card;
     // });
+  }
+
+  private fillPlayer(player: Player, userInfo: UserInfo): void {
+    player.id = userInfo.id;
+    player.name = userInfo.name;
+    player.state = userInfo.state;
   }
 
 }

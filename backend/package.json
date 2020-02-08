@@ -8,7 +8,7 @@
     "declarations": true
   },
   "scripts": {
-    "start": "ENABLE_NODE_LOG=tru egg-scripts start",
+    "start": "ENABLE_NODE_LOG=true egg-scripts start --sticky",
     "stop": "egg-scripts stop --title=egg-server-backend2",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",
@@ -27,6 +27,7 @@
     "egg-scripts": "^2.6.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.149",
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.12",
     "@types/supertest": "^2.0.0",

@@ -1,6 +1,6 @@
 import PokerCard from './PokerCard';
-import { PokerMethod } from './PokerMethod';
-import { PokerType } from './PokerType';
+import { PokerMethod } from './enum/PokerMethod';
+import { PokerType } from './enum/PokerType';
 
 /**
  * 打法决定者

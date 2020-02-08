@@ -19,6 +19,9 @@
       <!-- 展示区 -->
       <div class="show">
         <div class="operation">
+          <div class="ready" v-if="isRoomReady">
+            <button class="operation-button blue" @click="onClickReady">准备</button>
+          </div>
           <div class="play-card" v-if="showPlayCard">
             <button class="operation-button blue">要不起</button>
             <button class="operation-button orange" @click="knockout">出牌</button>
@@ -41,8 +44,8 @@
         <!-- # 自己出牌的展示区 -->
 
         <!-- 自己出牌状态 -->
-        <div class="me-state" v-if="playerMe.state">
-          <span>{{ playerMe.state }}</span>
+        <div class="me-state" v-if="playerMe.stateText">
+          <span>{{ playerMe.stateText }}</span>
         </div>
         <!-- # 自己出牌状态 -->
 
@@ -57,8 +60,8 @@
         <!-- # p1出牌的展示区 -->
 
         <!-- p1出牌状态 -->
-        <div class="p1-state" v-if="player1.state">
-          <span>{{ player1.state }}</span>
+        <div class="p1-state" v-if="player1.stateText">
+          <span>{{ player1.stateText }}</span>
         </div>
         <!-- # p1出牌状态 -->
 
@@ -73,8 +76,8 @@
         <!-- # p2出牌的展示区 -->
 
         <!-- p2出牌状态 -->
-        <div class="p2-state" v-if="player2.state">
-          <span>{{ player2.state }}</span>
+        <div class="p2-state" v-if="player2.stateText">
+          <span>{{ player2.stateText }}</span>
         </div>
         <!-- # p2出牌状态 -->
       </div>

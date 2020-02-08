@@ -1,6 +1,9 @@
-import { PokerType } from './src/PokerType';
-import { PokerMethod } from './src/PokerMethod';
-import { RoomState } from './src/RoomState';
+import { PokerType } from './src/enum/PokerType';
+import { PokerMethod } from './src/enum/PokerMethod';
+import { RoomState } from './src/enum/RoomState';
+import { UserState } from './src/enum/UserState';
+
+import ArrayUtils from './src/util/ArrayUtils';
 
 import Comparer from './src/Comparer';
 import Dealer from './src/Dealer';
@@ -12,6 +15,9 @@ export {
   PokerType,
   PokerMethod,
   RoomState,
+  UserState,
+
+  ArrayUtils,
 
   Comparer,
   Dealer,

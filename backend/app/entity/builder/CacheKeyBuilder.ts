@@ -4,6 +4,10 @@ export default class CacheKeyBuilder {
     return `room:info:${roomId}`;
   }
 
+  public static userInfo(roomId: string, userId: string): string {
+    return `room:${roomId}:user:info:${userId}`;
+  }
+
   public static roomUsers(roomId: string): string {
     return `room:users:${roomId}`;
   }

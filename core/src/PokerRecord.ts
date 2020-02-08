@@ -1,5 +1,5 @@
 import PokerCard from './PokerCard';
-import { PokerMethod } from './PokerMethod';
+import { PokerMethod } from './enum/PokerMethod';
 
 /**
  * 扑克记录

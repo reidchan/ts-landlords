@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Room from '../views/Room/index.vue';
+import Room from '../views/room/index.vue';
 
 Vue.use(VueRouter);
 

@@ -1,5 +1,5 @@
 import PokerCard from './PokerCard';
-import { PokerType } from './PokerType';
+import { PokerType } from './enum/PokerType';
 
 /**
  * 发牌器

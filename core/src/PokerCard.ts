@@ -1,4 +1,4 @@
-import { PokerType } from './PokerType';
+import { PokerType } from './enum/PokerType';
 
 /**
  * 扑克牌

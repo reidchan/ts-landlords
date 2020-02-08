@@ -7,4 +7,9 @@ export default class RoomController extends Controller {
     await this.service.room.joinRoom(params);
   }
 
+  public async readyUser(ctx: any) {
+    const params = ctx.req.args[0];
+    await this.service.room.readyUser(params);
+  }
+
 }

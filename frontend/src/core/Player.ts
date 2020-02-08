@@ -1,4 +1,6 @@
-import { PokerCard } from 'landlord-core';
+import { PokerCard, UserState } from 'landlord-core';
+
+import PlayerStateMapping from '@/core/PlayerStateMapping';
 
 /**
  * 玩家
@@ -10,18 +12,25 @@ export default class Player {
   public cards: PokerCard[] = [];
   // 是否是地主
   public isLandlord: boolean = false;
-  // 状态
-  public state: string | undefined;
   // 姓名
   public name: string;
-  // 玩家id
-  public id: string | undefined;
+  // id
+  public id!: string;
+  // 状态
+  public state: number = UserState.NOT_READY;
   // 是否是地主
   private isSelf: boolean;
 
   constructor(name: string, isSelf: boolean)  {
     this.name = name;
     this.isSelf = isSelf;
+  }
+
+  public get stateText(): string {
+    if (this.isSelf && this.state === UserState.NOT_READY) {
+      return '';
+    }
+    return PlayerStateMapping.get(this.state);
   }
 
   /**
