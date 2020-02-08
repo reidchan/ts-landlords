@@ -3,7 +3,11 @@ import { Component, Vue } from 'vue-property-decorator';
 import { isEmpty } from 'lodash';
 
 import Player from '@/core/Player';
-import { ArrayUtils, Dealer, PokerMethod, PokerCard, PokerMethodDecider, RoomState, UserState } from 'landlord-core';
+import {
+  PokerMethod, RoomState, UserState,
+  FrontendEvent, BackendEvent,
+  ArrayUtils,
+  Dealer, PokerCard, PokerMethodDecider } from 'landlord-core';
 import Card from '@/components/Card/index.vue';
 
 @Component({
@@ -75,7 +79,7 @@ export default class Room extends Vue {
       roomId: this.roomId,
       userId: this.playerMe.id,
     };
-    this.socket.emit('readyUser', params);
+    this.socket.emit(BackendEvent.readyUser, params);
   }
 
   /**
@@ -102,7 +106,7 @@ export default class Room extends Vue {
     }
     this.roomId = roomId;
 
-    this.socket.on('onInitRoom', (params: OnInitRoomCallbackParams) => {
+    this.socket.on(FrontendEvent.onInitRoom, (params: OnInitRoomCallbackParams) => {
       const roomInfo: RoomInfo = params.roomInfo;
       const userInfo: UserInfo = params.userInfo;
       console.log('onInitRoom...', params);
@@ -121,10 +125,22 @@ export default class Room extends Vue {
       this.roomState = roomInfo.state;
     });
 
-    this.socket.on('onUpdateRoomInfo', (params: OnInitRoomCallbackParams) => {
+    this.socket.on(FrontendEvent.onPlayerJoin, (params: OnPlayerJoinCallbackParams) => {
+      console.log('onPlayerJoin...', params);
+      const userInfo: UserInfo = params.userInfo;
+      if (!this.player1.id) {
+        this.fillPlayer(this.player1, userInfo);
+      } else if (!this.player2.id) {
+        this.fillPlayer(this.player2, userInfo);
+      }
     });
 
-    this.socket.on('onUpdateUserInfo', (params: OnUpdateUserInfoCallbackParams) => {
+    this.socket.on(FrontendEvent.onUpdateRoomInfo, (params: OnUpdateRoomInfoCallbackParams) => {
+      console.log('onUpdateRoomInfo...', params);
+      this.roomState = params.roomInfo.state;
+    });
+
+    this.socket.on(FrontendEvent.onUpdateUserInfo, (params: OnUpdateUserInfoCallbackParams) => {
       const userInfo: UserInfo = params.userInfo;
       let target = null;
       if (userInfo.id === userId) {
@@ -142,9 +158,9 @@ export default class Room extends Vue {
       }
     });
 
-    this.socket.on('onPlayerReady', (playId: string) => {
+    this.socket.on(FrontendEvent.onPlayerReady, (playId: string) => {
       console.log('onPlayerReady...', playId);
-      if (this.playerMe.id === playId) {
+      if (this.player1.id === playId) {
         this.player1.state = UserState.READY;
       } else {
         this.player2.state = UserState.READY;
@@ -158,7 +174,7 @@ export default class Room extends Vue {
         roomId,
         userId
       };
-      this.socket.emit('joinRoom', params);
+      this.socket.emit(BackendEvent.joinRoom, params);
     });
 
     this.socket.on('disconnect', () => {

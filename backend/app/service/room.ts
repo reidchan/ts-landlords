@@ -1,6 +1,6 @@
 import { Service } from 'egg';
 import { cloneDeep, isEmpty } from 'lodash';
-import { RoomState, UserState, ArrayUtils } from 'landlord-core';
+import { RoomState, UserState, ArrayUtils, FrontendEvent } from 'landlord-core';
 
 import CacheKeyBuilder from '../entity/builder/CacheKeyBuilder';
 
@@ -15,8 +15,8 @@ export default class RoomService extends Service {
    * 加入房间
    */
   public async joinRoom(params: JoinRoomParams): Promise<void> {
-    const { roomId, userId } = params;
-    const nsp = this.getNsp(roomId);
+    const { roomId, userId, socketId } = params;
+    let nsp = this.getNsp(roomId);
 
     const roomUsers: string[] = await this.getRoomUsers(roomId, userId);
     const roomInfo: RoomInfo = await this.getRoomInfo(roomId);
@@ -24,12 +24,18 @@ export default class RoomService extends Service {
     const userInfo: UserInfo = await this.getUserInfo(roomId, userId);
     const otherUserInfos: {[index: string]: UserInfo} = await this.getOtherUserInfos(roomUsers, roomId, userId);
 
-    const result: OnUpdateRoomInfoCallbackParams = {
+    const result: OnInitRoomCallbackParams = {
       roomInfo,
       userInfo,
       otherUserInfos,
     };
-    nsp.to(params.socketId).emit('onInitRoom', result);
+    nsp.to(socketId).emit(FrontendEvent.onInitRoom, result);
+
+    nsp = this.getNsp(roomId, true);
+    const result2: OnPlayerJoinCallbackParams = {
+      userInfo,
+    };
+    nsp.emit(FrontendEvent.onPlayerJoin, result2);
   }
 
   /**
@@ -44,9 +50,9 @@ export default class RoomService extends Service {
       const result: OnUpdateUserInfoCallbackParams = {
         userInfo,
       };
-      nsp.to(params.socketId).emit('onUpdateUserInfo', result);
+      nsp.to(params.socketId).emit(FrontendEvent.onUpdateUserInfo, result);
       nsp = this.getNsp(params.roomId, true);
-      nsp.emit('onPlayerReady', userInfo.id);
+      nsp.emit(FrontendEvent.onPlayerReady, userInfo.id);
     }
   }
 
@@ -109,7 +115,6 @@ export default class RoomService extends Service {
    */
   private getNsp(roomId: string, isBroadcast = false): any {
     const { app, ctx } = this as any;
-    ctx.socket.leave(roomId);
     if (isBroadcast) {
       return ctx.socket.broadcast.to(roomId);
     }
@@ -135,6 +140,11 @@ export default class RoomService extends Service {
         const roomInfo: RoomInfo = await this.getRoomInfo(roomId);
         roomInfo.state = RoomState.READY;
         await this.updateRoomInfo(roomId, roomInfo);
+        const nsp = this.getNsp(roomId, true);
+        const result: OnUpdateRoomInfoCallbackParams = {
+          roomInfo,
+        };
+        nsp.emit(FrontendEvent.onUpdateRoomInfo, result);
       }
       await global.CACHE.sadd(CacheKeyBuilder.roomUsers(roomId), userId);
     }

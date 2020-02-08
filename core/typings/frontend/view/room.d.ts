@@ -7,9 +7,11 @@ interface OnInitRoomCallbackParams {
   roomInfo: RoomInfo
 }
 
-interface OnUpdateRoomInfoCallbackParams {
+interface OnPlayerJoinCallbackParams {
   userInfo: UserInfo
-  otherUserInfos: {[index: string]: UserInfo}
+}
+
+interface OnUpdateRoomInfoCallbackParams {
   roomInfo: RoomInfo
 }
 
