@@ -24,9 +24,9 @@ declare class ReidsClient {
 
   public smembers(key: string): Promise<string[]>;
 
-  public hset(key: string, field: string, value: any): Promise<number>;
+  public hset(key: string, field: string, value: string): Promise<number>;
 
-  public hmset(key: string, keyValues: Map<string, any>): Promise<string>;
+  public hmset(key: string, keyValues: {[index: string]: any}): Promise<string>;
 
   public hget(key: string, field: string): Promise<any>;
 

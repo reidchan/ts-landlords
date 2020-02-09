@@ -10,10 +10,6 @@ export default class Dealer {
   // 卡牌
   public cards: PokerCard[] = [];
 
-  constructor() {
-    this.initCards();
-  }
-
   /**
    * 洗牌
    */
@@ -30,20 +26,14 @@ export default class Dealer {
   /**
    * 初始化卡牌
    */
-  private initCards(): void {
+  public initCards(): void {
     this.cards.push(new PokerCard(PokerType.Jocker, 16, 'joker-16'));
     this.cards.push(new PokerCard(PokerType.Jocker, 17, 'joker-17'));
-    for (let i = 1; i <= 6; i++) {
-      this.cards.push(new PokerCard(PokerType.Hearts, i + 2, `hearts-${i + 2}`));
-      this.cards.push(new PokerCard(PokerType.Hearts, i + 2, `hearts-${i + 2}`));
-      this.cards.push(new PokerCard(PokerType.Hearts, i + 2, `hearts-${i + 2}`));
+    for (let i = 1; i <= 13; i++) {
       this.cards.push(new PokerCard(PokerType.Hearts, i + 2, `hearts-${i + 2}`));
       this.cards.push(new PokerCard(PokerType.Spades, i + 2, `spades-${i + 2}`));
-      this.cards.push(new PokerCard(PokerType.Spades, i + 2, `spades-${i + 2}`));
-      this.cards.push(new PokerCard(PokerType.Spades, i + 2, `spades-${i + 2}`));
-      this.cards.push(new PokerCard(PokerType.Spades, i + 2, `spades-${i + 2}`));
-      // this.cards.push(new PokerCard(PokerType.Clubs, i + 2, `clubs-${i + 2}`));
-      // this.cards.push(new PokerCard(PokerType.Diamonds, i + 2, `diamonds-${i + 2}`));
+      this.cards.push(new PokerCard(PokerType.Clubs, i + 2, `clubs-${i + 2}`));
+      this.cards.push(new PokerCard(PokerType.Diamonds, i + 2, `diamonds-${i + 2}`));
     }
   }
 

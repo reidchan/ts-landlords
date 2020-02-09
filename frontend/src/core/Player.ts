@@ -1,4 +1,4 @@
-import { PokerCard, UserState } from 'landlord-core';
+import { PokerCard, UserState, RoomState } from 'landlord-core';
 
 import PlayerStateMapping from '@/core/PlayerStateMapping';
 
@@ -18,6 +18,8 @@ export default class Player {
   public id!: string;
   // 状态
   public state: number = UserState.NOT_READY;
+  // 房间状态
+  public roomState: number = RoomState.WAIT;
   // 是否是地主
   private isSelf: boolean;
 
@@ -28,6 +30,9 @@ export default class Player {
 
   public get stateText(): string {
     if (this.isSelf && this.state === UserState.NOT_READY) {
+      return '';
+    }
+    if (this.roomState === RoomState.CALL_LANDLORD && this.state === UserState.READY) {
       return '';
     }
     return PlayerStateMapping.get(this.state);

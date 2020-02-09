@@ -6,6 +6,9 @@ import { UserState } from './src/enum/UserState';
 import FrontendEvent from './src/constant/FrontendEvent';
 import BackendEvent from './src/constant/BackendEvent';
 
+import $UserInfo from './src/constant/$UserInfo';
+import $RoomInfo from './src/constant/$RoomInfo';
+
 import ArrayUtils from './src/util/ArrayUtils';
 
 import Comparer from './src/Comparer';
@@ -23,11 +26,14 @@ export {
   FrontendEvent,
   BackendEvent,
 
+  $UserInfo,
+  $RoomInfo,
+
   ArrayUtils,
 
   Comparer,
   Dealer,
   PokerCard,
   PokerMethodDecider,
-  PokerRecord
+  PokerRecord,
 }

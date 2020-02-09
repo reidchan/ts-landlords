@@ -1,13 +1,12 @@
 import io from 'socket.io-client';
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { isEmpty } from 'lodash';
 
 import Player from '@/core/Player';
 import {
   PokerMethod, RoomState, UserState,
   FrontendEvent, BackendEvent,
-  ArrayUtils,
-  Dealer, PokerCard, PokerMethodDecider } from 'landlord-core';
+  PokerCard, PokerMethodDecider } from 'landlord-core';
 import Card from '@/components/Card/index.vue';
 
 @Component({
@@ -35,6 +34,7 @@ export default class Room extends Vue {
   public showP1State: boolean = false;
   // P2的出牌状态
   public showP2State: boolean = false;
+  // 房间id
   public roomId!: string;
   // 房间状态
   public roomState: RoomState = RoomState.WAIT;
@@ -47,6 +47,11 @@ export default class Room extends Vue {
     };
   }
 
+  @Watch('roomState')
+  public onChangeRoomState(newVal: number) {
+    this.fillPlayerRoomState(newVal);
+  }
+
   public get isRoomWait(): boolean {
     return this.roomState === RoomState.WAIT;
   }
@@ -55,8 +60,8 @@ export default class Room extends Vue {
     return this.roomState === RoomState.READY && this.playerMe.state === UserState.NOT_READY;
   }
 
-  public get isRoomGameStart(): boolean {
-    return this.roomState === RoomState.GAME_START;
+  public get isShowCards(): boolean {
+    return this.roomState >= RoomState.CALL_LANDLORD;
   }
 
   /**
@@ -107,9 +112,9 @@ export default class Room extends Vue {
     this.roomId = roomId;
 
     this.socket.on(FrontendEvent.onInitRoom, (params: OnInitRoomCallbackParams) => {
+      console.log('onInitRoom...', params);
       const roomInfo: RoomInfo = params.roomInfo;
       const userInfo: UserInfo = params.userInfo;
-      console.log('onInitRoom...', params);
       const otherUserInfos: {[index: string]: UserInfo} = params.otherUserInfos;
       for (const key of Object.keys(otherUserInfos)) {
         const value = otherUserInfos[key];
@@ -141,6 +146,7 @@ export default class Room extends Vue {
     });
 
     this.socket.on(FrontendEvent.onUpdateUserInfo, (params: OnUpdateUserInfoCallbackParams) => {
+      console.log('onUpdateUserInfo...', params);
       const userInfo: UserInfo = params.userInfo;
       let target = null;
       if (userInfo.id === userId) {
@@ -153,8 +159,7 @@ export default class Room extends Vue {
       if (target) {
         const that = this as any;
         const targetPlayer: Player = that[target] as Player;
-        targetPlayer.state = userInfo.state;
-        targetPlayer.cards = userInfo.cards;
+        this.fillPlayer(targetPlayer, userInfo);
       }
     });
 
@@ -185,33 +190,6 @@ export default class Room extends Vue {
     window.onbeforeunload = () => {
       this.socket.disconnect();
     };
-
-    // const dealer = new Dealer();
-    // dealer.shuffle();
-
-    // const players: Player[] = [];
-    // players.push(this.player1);
-    // players.push(this.player2);
-    // players.push(this.playerMe);
-
-    // for (let i = 0; i < 51; i++) {
-    //   const card = dealer.cards.shift();
-    //   if (card) {
-    //     players[i % 3].cards.push(card);
-    //   }
-    // }
-
-    // players.forEach((p: Player) => {
-    //   p.sortCard();
-    // });
-
-    // let confirmLandlord = false;
-    // while (!confirmLandlord) {
-    // }
-    // this.player1 = players[0];
-    // this.player2 = players[1];
-    // this.playerMe = players[2];
-
     // this.playerMe.cards = this.playerMe.cards.map((card: PokerCard, index: number) =>  {
     //   card.style  = {
     //     left: `-${60 * index}px`
@@ -227,10 +205,22 @@ export default class Room extends Vue {
     // });
   }
 
+  private fillPlayerRoomState(state: RoomState): void {
+    this.playerMe.roomState = state;
+    this.player1.roomState = state;
+    this.player2.roomState = state;
+  }
+
   private fillPlayer(player: Player, userInfo: UserInfo): void {
     player.id = userInfo.id;
     player.name = userInfo.name;
     player.state = userInfo.state;
+    player.cards = userInfo.cards;
+    if (player.cards.length > 0) {
+      player.cards.sort((a: PokerCard, b: PokerCard) => {
+        return b.points - a.points;
+      })
+    }
   }
 
 }
