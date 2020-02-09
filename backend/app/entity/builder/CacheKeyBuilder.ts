@@ -8,6 +8,14 @@ export default class CacheKeyBuilder {
     return `room:${roomId}:user:info:${userId}`;
   }
 
+  public static userPreviousUser(roomId: string, userId: string): string {
+    return `room:${roomId}:previous:user:${userId}`;
+  }
+
+  public static userNextUser(roomId: string, userId: string): string {
+    return `room:${roomId}:next:user:${userId}`;
+  }
+
   public static roomUsers(roomId: string): string {
     return `room:users:${roomId}`;
   }

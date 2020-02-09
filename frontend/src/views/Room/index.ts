@@ -116,13 +116,11 @@ export default class Room extends Vue {
       const roomInfo: RoomInfo = params.roomInfo;
       const userInfo: UserInfo = params.userInfo;
       const otherUserInfos: {[index: string]: UserInfo} = params.otherUserInfos;
-      for (const key of Object.keys(otherUserInfos)) {
-        const value = otherUserInfos[key];
-        if (isEmpty(this.player1.id)) {
-          this.fillPlayer(this.player1, value);
-        } else if (isEmpty(this.player2.id)) {
-          this.fillPlayer(this.player2, value);
-        }
+      if (userInfo.previousUserId) {
+        this.fillPlayer(this.player1, otherUserInfos[userInfo.previousUserId]);
+      }
+      if (userInfo.nextUserId) {
+        this.fillPlayer(this.player2, otherUserInfos[userInfo.nextUserId]);
       }
       if (this.playerMe.id === userInfo.id) {
         this.fillPlayer(this.playerMe, userInfo);
@@ -133,10 +131,10 @@ export default class Room extends Vue {
     this.socket.on(FrontendEvent.onPlayerJoin, (params: OnPlayerJoinCallbackParams) => {
       console.log('onPlayerJoin...', params);
       const userInfo: UserInfo = params.userInfo;
-      if (!this.player1.id) {
-        this.fillPlayer(this.player1, userInfo);
-      } else if (!this.player2.id) {
+      if (this.playerMe.id === userInfo.previousUserId) {
         this.fillPlayer(this.player2, userInfo);
+      } else {
+        this.fillPlayer(this.player1, userInfo);
       }
     });
 
@@ -216,10 +214,10 @@ export default class Room extends Vue {
     player.name = userInfo.name;
     player.state = userInfo.state;
     player.cards = userInfo.cards;
-    if (player.cards.length > 0) {
+    if (!isEmpty(player.cards) && player.cards.length > 0) {
       player.cards.sort((a: PokerCard, b: PokerCard) => {
         return b.points - a.points;
-      })
+      });
     }
   }
 

@@ -22,11 +22,11 @@ export default class RoomService extends Service {
     const { roomId, userId, socketId } = params;
     let nsp = this.getNsp(roomId);
 
-    const roomUsers: string[] = await this.getRoomUsers(roomId, userId);
+    const userIds: string[] = await this.getRoomUserIds(roomId, userId);
     const roomInfo: RoomInfo = await this.getRoomInfo(roomId);
 
     const userInfo: UserInfo = await this.getUserInfo(roomId, userId);
-    const otherUserInfos: {[index: string]: UserInfo} = await this.getOtherUserInfos(roomUsers, roomId, userId);
+    const otherUserInfos: {[index: string]: UserInfo} = await this.getOtherUserInfos(userIds, roomId, userId);
 
     const result: OnInitRoomCallbackParams = {
       roomInfo,
@@ -61,7 +61,7 @@ export default class RoomService extends Service {
       nsp.emit(FrontendEvent.onPlayerReady, userInfo.id);
 
       // 广播通知所有人
-      const userIds: string[] = await this.getRoomUsers(roomId, userId);
+      const userIds: string[] = await this.getRoomUserIds(roomId, userId);
       ArrayUtils.remove(userIds, userId);
       let readyCount = 0;
       for (const otherUserId of userIds) {
@@ -159,6 +159,8 @@ export default class RoomService extends Service {
     if (!isEmpty(userInfo)) {
       userInfo.state = Number(content[$UserInfo.state]);
       userInfo.cards = JSON.parse(content[$UserInfo.cards]);
+      userInfo.previousUserId = await this.getUserPreviousUser(roomId, userId);
+      userInfo.nextUserId = await this.getUserNextUser(roomId, userId);
     } else {
       userInfo = {
         id: userId,
@@ -166,6 +168,8 @@ export default class RoomService extends Service {
         state: UserState.NOT_READY,
         isLandlord: false,
         cards: [],
+        previousUserId: await this.getUserPreviousUser(roomId, userId),
+        nextUserId: await this.getUserNextUser(roomId, userId),
       };
       await this.updateUserInfo(roomId, userInfo);
     }
@@ -216,11 +220,12 @@ export default class RoomService extends Service {
   /**
    * 创建玩家池
    */
-  private async getRoomUsers(roomId: string, userId: string): Promise<string[]> {
-    let roomUsers: string[] = await global.CACHE.smembers(CacheKeyBuilder.roomUsers(roomId));
-    if (!roomUsers.includes(userId) && roomUsers.length < 3) {
-      roomUsers = roomUsers.concat(userId);
-      if (roomUsers.length === 3) {
+  private async getRoomUserIds(roomId: string, userId: string): Promise<string[]> {
+    let userIds: string[] = await global.CACHE.smembers(CacheKeyBuilder.roomUsers(roomId));
+    if (!userIds.includes(userId) && userIds.length < 3) {
+      await this.setUsersSequence(roomId, userId, userIds);
+      userIds = userIds.concat(userId);
+      if (userIds.length === 3) {
         const roomInfo: RoomInfo = await this.getRoomInfo(roomId);
         roomInfo.state = RoomState.READY;
         await this.updateRoomInfo(roomId, roomInfo);
@@ -232,14 +237,54 @@ export default class RoomService extends Service {
       }
       await global.CACHE.sadd(CacheKeyBuilder.roomUsers(roomId), userId);
     }
-    return roomUsers;
+    return userIds;
+  }
+
+  /**
+   * 设置用户的顺序
+   */
+  private async setUsersSequence(roomId: string, targetUserId: string, userIds: string[]): Promise<void> {
+    if (userIds.length === 1) {
+      const userId: string = userIds[0];
+      await this.updateUserPreviousUser(roomId, targetUserId, userId);
+      await this.updateUserNextUser(roomId, userId, targetUserId);
+    } else if (userIds.length === 2) {
+      const userId1: string = userIds[0];
+      const userId2: string = userIds[1];
+      const user1NextUserId = await this.getUserNextUser(roomId, userId1);
+      if (isEmpty(user1NextUserId)) {
+        await this.updateUserNextUser(roomId, userId1, targetUserId);
+        await this.updateUserPreviousUser(roomId, targetUserId, userId1);
+        await this.updateUserNextUser(roomId, targetUserId, userId2);
+        await this.updateUserPreviousUser(roomId, userId2, targetUserId);
+      } else {
+        await this.updateUserNextUser(roomId, userId2, targetUserId);
+        await this.updateUserPreviousUser(roomId, targetUserId, userId2);
+        await this.updateUserNextUser(roomId, targetUserId, userId1);
+        await this.updateUserPreviousUser(roomId, userId1, targetUserId);
+      }
+    }
+  }
+
+  /**
+   * 获取玩家的上家
+   */
+  private async getUserPreviousUser(roomId: string, userId: string): Promise<any> {
+    return await global.CACHE.get(CacheKeyBuilder.userPreviousUser(roomId, userId));
+  }
+
+  /**
+   * 获取玩家的下家
+   */
+  private async getUserNextUser(roomId: string, userId: string): Promise<string> {
+    return await global.CACHE.get(CacheKeyBuilder.userNextUser(roomId, userId));
   }
 
   /**
    * 更新房间信息
    */
   private async updateRoomInfo(roomId: string, roomInfo: RoomInfo): Promise<void> {
-    const roomInfoMap: {[index: string]: any} = roomInfo as any;
+    const roomInfoMap: {[index: string]: any} = cloneDeep(roomInfo) as any;
     roomInfoMap[$RoomInfo.landloadCards] = JSON.stringify(roomInfo[$RoomInfo.landloadCards]);
     await global.CACHE.hmset(CacheKeyBuilder.roomInfo(roomId), roomInfoMap);
   }
@@ -257,7 +302,7 @@ export default class RoomService extends Service {
    * @param userInfo
    */
   private async updateUserInfo(roomId: string, userInfo: UserInfo): Promise<void> {
-    const userInfoMap: {[index: string]: any} = userInfo as any;
+    const userInfoMap: {[index: string]: any} = cloneDeep(userInfo) as any;
     userInfoMap[$UserInfo.cards] = JSON.stringify(userInfo[$UserInfo.cards]);
     await global.CACHE.hmset(CacheKeyBuilder.userInfo(roomId, userInfo.id), userInfoMap);
   }
@@ -269,9 +314,18 @@ export default class RoomService extends Service {
     return await global.CACHE.hset(CacheKeyBuilder.userInfo(roomId, userId), key, value);
   }
 
-  // const roomCards: string[] = await global.CACHE.del(CacheKeyBuilder.roomCards(roomId));
-  // const roomRecords: string[] = await global.CACHE.del(CacheKeyBuilder.roomRecords(roomId));
-  // global.CACHE.set(CacheKeyBuilder.roomCards(roomId), '[]');
-  // global.CACHE.set(CacheKeyBuilder.roomRecords(roomId), '[]');
+  /**
+   * 更新玩家的上家
+   */
+  private async updateUserPreviousUser(roomId: string, userId: string, value: string): Promise<void> {
+    await global.CACHE.set(CacheKeyBuilder.userPreviousUser(roomId, userId), value);
+  }
+
+  /**
+   * 更新玩家的下家
+   */
+  private async updateUserNextUser(roomId: string, userId: string, value: string): Promise<void> {
+    await global.CACHE.set(CacheKeyBuilder.userNextUser(roomId, userId), value);
+  }
 
 }
