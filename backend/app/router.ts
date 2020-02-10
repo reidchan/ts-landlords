@@ -12,4 +12,6 @@ export default (app: Application) => {
   nsp.route(BackendEvent.notCallLandlord, io.controller.room.notCallLandlord);
   nsp.route(BackendEvent.lootLandlord, io.controller.room.lootLandlord);
   nsp.route(BackendEvent.notLootLandlord, io.controller.room.notLootLandlord);
+  nsp.route(BackendEvent.passBout, io.controller.room.passBout);
+  nsp.route(BackendEvent.knockOut, io.controller.room.knockOut);
 };

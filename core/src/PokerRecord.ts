@@ -7,11 +7,13 @@ import { PokerMethod } from './enum/PokerMethod';
  */
 export default class PokerRecord {
 
+  // 用户id
+  public userId!: string;
   // 打法
-  public method: PokerMethod | undefined;
+  public method!: PokerMethod;
   // 对应的牌
   public cards: PokerCard[] = [];
-  // 最大的牌
-  public bigCard!: PokerCard;
+  // 最大的点数
+  public maxPoint!: number;
 
 }

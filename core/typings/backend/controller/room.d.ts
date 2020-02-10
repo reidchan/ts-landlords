@@ -33,3 +33,16 @@ declare interface NotLootLandlordParams {
   roomId: string
   userId: string
 }
+
+declare interface KnockOutParams {
+  activeCards: any[]
+  socketId: string
+  roomId: string
+  userId: string
+}
+
+declare interface PassBoutParams {
+  socketId: string
+  roomId: string
+  userId: string
+}

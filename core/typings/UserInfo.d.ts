@@ -4,6 +4,7 @@ declare interface UserInfo {
   state: number
   isLandlord: boolean
   cards: any[],
+  showCards: any[],
   previousUserId: string,
   nextUserId: string
 }

@@ -10,6 +10,8 @@ export default class Player {
 
   // 卡牌
   public cards: PokerCard[] = [];
+  // 当前展示的手牌
+  public showCards: PokerCard[] = [];
   // 是否是地主
   public isLandlord: boolean = false;
   // 姓名

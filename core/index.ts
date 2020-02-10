@@ -6,13 +6,13 @@ import { UserState } from './src/enum/UserState';
 import FrontendEvent from './src/constant/FrontendEvent';
 import BackendEvent from './src/constant/BackendEvent';
 
+import $PokerRecord from './src/constant/$PokerRecord';
 import $UserInfo from './src/constant/$UserInfo';
 import $RoomInfo from './src/constant/$RoomInfo';
 
 import ArrayUtils from './src/util/ArrayUtils';
 import MathUtils from './src/util/MathUtils';
 
-import Comparer from './src/Comparer';
 import Dealer from './src/Dealer';
 import PokerCard from './src/PokerCard';
 import PokerMethodDecider from './src/PokerMethodDecider';
@@ -27,13 +27,13 @@ export {
   FrontendEvent,
   BackendEvent,
 
+  $PokerRecord,
   $UserInfo,
   $RoomInfo,
 
   ArrayUtils,
   MathUtils,
 
-  Comparer,
   Dealer,
   PokerCard,
   PokerMethodDecider,

@@ -24,8 +24,8 @@ export default class CacheKeyBuilder {
     return `room:cards:${roomId}`;
   }
 
-  public static roomRecords(roomId: string): string {
-    return `room:records:${roomId}`;
+  public static roomCardRecords(roomId: string): string {
+    return `room:card:records:${roomId}`;
   }
 
 }

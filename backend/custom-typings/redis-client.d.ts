@@ -20,7 +20,7 @@ declare class ReidsClient {
 
   public rpop(key: string): Promise<any>;
 
-  public lrange(key: string, start: number, end: number): Promise<any[]>;
+  public lrange(key: string, start: number, end: number): Promise<string[]>;
 
   public sadd(key: string, value: any): number;
 
@@ -32,7 +32,7 @@ declare class ReidsClient {
 
   public hmset(key: string, keyValues: {[index: string]: any}): Promise<string>;
 
-  public hget(key: string, field: string): Promise<any>;
+  public hget(key: string, field: string): Promise<string>;
 
   public hgetall(key: string): Promise<any>;
 

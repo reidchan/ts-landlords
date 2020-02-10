@@ -7,7 +7,7 @@
         <div class="figure">
           <img v-if="player1.isLandlord" class="avatar" src="@/assets/img/figure/landlord.png"/>
           <img v-else class="avatar" src="@/assets/img/figure/farmer.png"/>
-          <div class="message">
+          <div :class="['message', player1.id === curPlayerId ? 'cur-player' : '']">
             <p>{{ player1.name }}</p>
           </div>
         </div>
@@ -25,7 +25,7 @@
           </div>
           <div class="play-card" v-if="canKnockCard">
             <button class="operation-button orange" @click="onKnockOut">出牌</button>
-            <button class="operation-button blue">要不起</button>
+            <button class="operation-button blue" @click="onPassBout" v-if="canPassBout">不出</button>
           </div>
           <div class="call-landlord" v-if="canCallLandlord">
             <button class="operation-button orange" @click="onCallLandlord">叫地主</button>
@@ -38,9 +38,9 @@
         </div>
 
        <!-- 自己出牌的展示区 -->
-        <div class="me-cards" v-if="showMeCards">
+        <div class="me-cards" v-if="canShowMeCard">
           <div class="card-box">
-            <div class="card" v-for="(card, index) of player1.cards" :key="index">
+            <div class="card" v-for="(card, index) of playerMe.showCards" :key="index">
               <Card :card="card" :style="card.style"/>
             </div>
           </div>
@@ -54,9 +54,9 @@
         <!-- # 自己出牌状态 -->
 
         <!-- p1出牌的展示区 -->
-        <div class="p1-cards" v-if="showP1Cards">
+        <div class="p1-cards" v-if="canShowP1Card">
           <div class="card-box">
-            <div class="card" v-for="(card, index) of player1.cards" :key="index">
+            <div class="card" v-for="(card, index) of player1.showCards" :key="index">
               <Card :card="card" :style="card.style"/>
             </div>
           </div>
@@ -70,9 +70,9 @@
         <!-- # p1出牌状态 -->
 
         <!-- p2出牌的展示区 -->
-        <div class="p2-cards" v-if="showP2Cards">
+        <div class="p2-cards" v-if="canShowP2Card">
           <div class="card-box">
-            <div class="card" v-for="(card, index) of player2.cards" :key="index">
+            <div class="card" v-for="(card, index) of player2.showCards" :key="index">
               <Card :card="card"/>
             </div>
           </div>
@@ -95,7 +95,7 @@
         <div class="figure">
           <img v-if="player2.isLandlord" class="avatar" src="@/assets/img/figure/landlord.png"/>
           <img v-else class="avatar" src="@/assets/img/figure/farmer.png"/>
-          <div class="message">
+          <div :class="['message', player2.id === curPlayerId ? 'cur-player' : '']">
             <p>{{ player2.name }}</p>
           </div>
         </div>
@@ -105,7 +105,7 @@
       <div class="figure">
         <img v-if="playerMe.isLandlord" class="avatar" src="@/assets/img/figure/landlord.png"/>
         <img v-else class="avatar" src="@/assets/img/figure/farmer.png"/>
-        <div class="message">
+        <div :class="['message', playerMe.id === curPlayerId ? 'cur-player' : '']">
           <p>{{ playerMe.name }}</p>
         </div>
       </div>

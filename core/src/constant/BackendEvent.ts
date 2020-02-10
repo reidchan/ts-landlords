@@ -5,4 +5,6 @@ export default {
   notCallLandlord: 'notCallLandlord',
   lootLandlord: 'lootLandlord',
   notLootLandlord: 'notLootLandlord',
+  passBout: 'passBout',
+  knockOut: 'knockOut',
 };

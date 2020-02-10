@@ -6,7 +6,7 @@ import Player from '@/core/Player';
 import {
   PokerMethod, RoomState, UserState,
   FrontendEvent, BackendEvent,
-  PokerCard, PokerMethodDecider } from 'landlord-core';
+  PokerCard, PokerMethodDecider, PokerRecord } from 'landlord-core';
 import Card from '@/components/Card/index.vue';
 
 @Component({
@@ -22,8 +22,6 @@ export default class Room extends Vue {
   public showPlayCard: boolean = false;
   // 叫地主操作
   public showCallLandlord: boolean = false;
-  // 我的出牌
-  public showMeCards: boolean = false;
   // P1的出牌
   public showP1Cards: boolean = false;
   // P2的出牌
@@ -38,8 +36,12 @@ export default class Room extends Vue {
   public roomId: string = '';
   // 房间状态
   public roomState: RoomState = RoomState.WAIT;
+  // 有没有第一血
+  public haveFirstBlood: boolean = false;
   // 当前可执行的玩家
   public curPlayerId: string = '';
+  // 最后的卡牌记录
+  public lastCardRecord: PokerRecord | null = null;
   // socket
   private socket!: SocketIOClient.Socket;
 
@@ -82,6 +84,24 @@ export default class Room extends Vue {
   public get canLootLandlord(): boolean {
     return this.roomState === RoomState.LOOT_LANDLORD
     && this.canPlayCard && this.playerMe.state === UserState.READY;
+  }
+
+  public get canPassBout(): boolean {
+    return this.roomState === RoomState.GAME_START && this.canPlayCard
+    && this.playerMe.state === UserState.PLAY && this.haveFirstBlood
+    && (!this.lastCardRecord || this.lastCardRecord && this.lastCardRecord.userId !== this.playerMe.id);
+  }
+
+  public get canShowMeCard(): boolean {
+    return this.playerMe.showCards.length > 0 && this.curPlayerId !== this.playerMe.id;
+  }
+
+  public get canShowP1Card(): boolean {
+    return this.player1.showCards.length > 0 && this.curPlayerId !== this.player1.id;
+  }
+
+  public get canShowP2Card(): boolean {
+    return this.player2.showCards.length > 0 && this.curPlayerId !== this.player2.id;
   }
 
   /**
@@ -159,6 +179,18 @@ export default class Room extends Vue {
   }
 
   /**
+   * 要不起
+   */
+  public onPassBout(): void {
+    const params: PassBoutParams = {
+      socketId: this.socket.id,
+      roomId: this.roomId,
+      userId: this.playerMe.id,
+    };
+    this.socket.emit(BackendEvent.passBout, params);
+  }
+
+  /**
    * 打出牌
    */
   public onKnockOut() {
@@ -169,12 +201,39 @@ export default class Room extends Vue {
         return card;
       }
     });
-    const method: PokerMethod = PokerMethodDecider.getMethod(activeCards);
+    console.log('activeCards =>', activeCards);
+    try {
+      const method: PokerMethod = PokerMethodDecider.getMethod(activeCards);
+      console.log('method =>', method);
+      const params: KnockOutParams = {
+        activeCards,
+        socketId: this.socket.id,
+        roomId: this.roomId,
+        userId: this.playerMe.id,
+      };
+      const curMaxPoint: number = activeCards[activeCards.length - 1].points;
+      if (!this.lastCardRecord || this.lastCardRecord.method === method
+        || this.lastCardRecord.userId === this.playerMe.id) {
+        if (this.lastCardRecord && this.lastCardRecord.userId !== this.playerMe.id) {
+          if (curMaxPoint <= this.lastCardRecord.maxPoint) {
+            window.alert('你的点数不够大噢');
+            this.resetCardsState();
+            return;
+          }
+        }
+        this.socket.emit(BackendEvent.knockOut, params);
+      } else {
+        window.alert('你的出牌不符合规则');
+        this.resetCardsState();
+      }
+    } catch (error) {
+      window.alert(error.message);
+    }
   }
 
   public created() {
     const { roomId, userId } = this.$route.query as unknown as RoomViewQuery;
-    this.socket = io('http://127.0.0.1:7001');
+    this.socket = io('http://192.168.1.102:7001');
 
     if (userId) {
       this.playerMe.id = userId;
@@ -196,8 +255,8 @@ export default class Room extends Vue {
       if (this.playerMe.id === userInfo.id) {
         this.fillPlayer(this.playerMe, userInfo);
       }
-      this.curPlayerId = roomInfo.curUserId;
-      this.roomState = roomInfo.state;
+      this.fillRoomInfo(roomInfo);
+      this.lastCardRecord = params.lastCardRecord;
     });
 
     this.socket.on(FrontendEvent.onPlayerJoin, (params: OnPlayerJoinCallbackParams) => {
@@ -212,8 +271,7 @@ export default class Room extends Vue {
 
     this.socket.on(FrontendEvent.onUpdateRoomInfo, (params: OnUpdateRoomInfoCallbackParams) => {
       console.log('onUpdateRoomInfo...', params);
-      this.roomState = params.roomInfo.state;
-      this.curPlayerId = params.roomInfo.curUserId;
+      this.fillRoomInfo(params.roomInfo);
     });
 
     this.socket.on(FrontendEvent.onUpdateUserInfo, (params: OnUpdateUserInfoCallbackParams) => {
@@ -253,6 +311,16 @@ export default class Room extends Vue {
       console.log('onReloadCallLandload...');
     });
 
+    this.socket.on(FrontendEvent.onUpdateLastCardRecord, (record: PokerRecord)  => {
+      console.log('onUpdateLastCardRecord...', record);
+      this.lastCardRecord = record;
+    });
+
+    this.socket.on(FrontendEvent.onGameOver, (winerId: string) => {
+      console.log('onGameOver...', winerId);
+      window.alert('游戏结束，胜利者：' + winerId);
+    });
+
     this.socket.on('connect', () => {
       console.log('connect...');
       const params: JoinRoomParams = {
@@ -286,6 +354,12 @@ export default class Room extends Vue {
     // });
   }
 
+  private fillRoomInfo(roomInfo: RoomInfo): void {
+    this.roomState = roomInfo.state;
+    this.curPlayerId = roomInfo.curUserId;
+    this.haveFirstBlood = roomInfo.haveFirstBlood;
+  }
+
   private fillPlayerRoomState(state: RoomState): void {
     this.playerMe.roomState = state;
     this.player1.roomState = state;
@@ -297,11 +371,18 @@ export default class Room extends Vue {
     player.name = userInfo.name;
     player.state = userInfo.state;
     player.cards = userInfo.cards;
+    player.showCards = userInfo.showCards;
     player.isLandlord = userInfo.isLandlord;
     if (!isEmpty(player.cards) && player.cards.length > 0) {
       player.cards.sort((a: PokerCard, b: PokerCard) => {
         return b.points - a.points;
       });
+    }
+  }
+
+  private resetCardsState() {
+    for (const card of this.playerMe.cards) {
+      card.active = false;
     }
   }
 

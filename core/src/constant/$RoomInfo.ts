@@ -1,5 +1,6 @@
 export default {
   id: 'id',
+  haveFirstBlood: 'haveFirstBlood',
   curUserId: 'curUserId',
   landlordId: 'landlordId',
   callLandlordId: 'callLandlordId',

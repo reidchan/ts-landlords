@@ -2,7 +2,7 @@ import { Service } from 'egg';
 import { cloneDeep, isEmpty } from 'lodash';
 import {
   RoomState, UserState,
-  Dealer, PokerCard,
+  Dealer, PokerCard, PokerMethodDecider, PokerRecord,
   ArrayUtils, MathUtils,
   FrontendEvent, $UserInfo, $RoomInfo } from 'landlord-core';
 
@@ -27,11 +27,13 @@ export default class RoomService extends Service {
 
     const userInfo: UserInfo = await this.getUserInfo(roomId, userId);
     const otherUserInfos: {[index: string]: UserInfo} = await this.getOtherUserInfos(userIds, roomId, userId);
+    const lastCardRecord = await this.getLastCardRecords(roomId);
 
     const result: OnInitRoomCallbackParams = {
       roomInfo,
       userInfo,
       otherUserInfos,
+      lastCardRecord,
     };
     nsp.to(socketId).emit(FrontendEvent.onInitRoom, result);
 
@@ -65,8 +67,8 @@ export default class RoomService extends Service {
       ArrayUtils.remove(userIds, userId);
       let readyCount = 0;
       for (const otherUserId of userIds) {
-        const state = await this.getPartUserInfo(roomId, otherUserId, $UserInfo.state);
-        if (Number(state) === UserState.READY) {
+        const state = JSON.parse(await this.getPartUserInfo(roomId, otherUserId, $UserInfo.state));
+        if (state === UserState.READY) {
           readyCount++;
         }
       }
@@ -169,6 +171,94 @@ export default class RoomService extends Service {
     await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.NOT_LOOT_LANDLORD);
     await this.updateRoomCurUserId(roomId, userId);
     await this.lootLandlordNotifacation(roomId, userId);
+  }
+
+  /**
+   * 要不起
+   */
+  public async passBout(params: PassBoutParams): Promise<void> {
+    const { roomId, userId } = params;
+    await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.PASS);
+    await this.updatePartUserInfo(roomId, userId, $UserInfo.showCards, '[]');
+    const nextUserId: string = await this.updateRoomCurUserId(roomId, userId);
+    await this.updatePartUserInfo(roomId, nextUserId, $UserInfo.state, UserState.PLAY);
+
+    const nsp = this.getNsp(roomId);
+    const userInfo = await this.getUserInfo(roomId, userId);
+    const result: OnUpdateUserInfoCallbackParams = {
+      userInfo,
+    };
+    nsp.emit(FrontendEvent.onUpdateUserInfo, result);
+    nsp.emit(FrontendEvent.onSwitchPlayer, nextUserId, RoomState.GAME_START);
+  }
+
+  /**
+   * 出牌
+   */
+  public async knockOut(params: KnockOutParams): Promise<void> {
+    const { roomId, userId, activeCards } = params;
+    // TODO: 错误时的提示
+    // const curLastCard = activeCards[activeCards.length - 1] as PokerCard;
+    // const method: PokerMethod = PokerMethodDecider.getMethod(activeCards);
+    // const lastCardRecords = await this.getLastCardRecords(roomId);
+    // if (lastCardRecords) {
+    // if (method !== lastCardRecords.method || curLastCard.points <= lastCardRecords.maxPoint) {
+    // }
+    // }
+    const haveFirstBlood = await JSON.parse(await this.getPartRoomInfo(roomId, $RoomInfo.haveFirstBlood));
+    if (!haveFirstBlood) {
+      await this.updatePartRoomInfo(roomId, $RoomInfo.haveFirstBlood, true);
+    }
+
+    const residueCards: PokerCard[] = await this.filterUsedCards(roomId, userId, activeCards);
+    const nsp = this.getNsp(roomId);
+    if (residueCards.length === 0) {
+      nsp.emit(FrontendEvent.onGameOver, userId);
+      return;
+    }
+    await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.PLAY);
+    await this.updatePartUserInfo(roomId, userId, $UserInfo.showCards, JSON.stringify(activeCards));
+    await this.addCardRecord(roomId, userId, activeCards);
+    const nextUserId: string = await this.updateRoomCurUserId(roomId, userId);
+    await this.updatePartUserInfo(roomId, nextUserId, $UserInfo.state, UserState.PLAY);
+
+    // 更新用户信息
+    const userInfo = await this.getUserInfo(roomId, userId);
+    const result: OnUpdateUserInfoCallbackParams = {
+      userInfo,
+    };
+    nsp.emit(FrontendEvent.onUpdateUserInfo, result);
+    // 更新房间信息
+    const roomInfo = await this.getRoomInfo(roomId);
+    const result2: OnUpdateRoomInfoCallbackParams = {
+      roomInfo,
+    };
+    nsp.emit(FrontendEvent.onUpdateRoomInfo, result2);
+  }
+
+  /**
+   * 过滤掉已使用的卡牌
+   */
+  private async filterUsedCards(roomId: string, userId: string, usedCards: PokerCard[]): Promise<PokerCard[]> {
+    let cards: PokerCard[] = JSON.parse(await this.getPartUserInfo(roomId, userId, $UserInfo.cards));
+    const cardMap: Map<string, PokerCard | null> = new Map();
+    for (const card of cards) {
+      cardMap.set(`${card.type}-${card.points}`, card);
+    }
+    for (const card of usedCards) {
+      if (cardMap.has(`${card.type}-${card.points}`)) {
+        cardMap.set(`${card.type}-${card.points}`, null);
+      }
+    }
+
+    cards = [];
+    for (const card of cardMap.values()) {
+      if (card) {
+        cards.push(card);
+      }
+    }
+    await this.updatePartUserInfo(roomId, userId, $UserInfo.cards, JSON.stringify(cards));
+    return cards;
   }
 
   /**
@@ -309,8 +399,6 @@ export default class RoomService extends Service {
     // 随机找一位玩家开始抢地主操作
     const userIndex: number = MathUtils.random(0, 2);
     roomInfo.curUserId = userIds[userIndex];
-    // TODO:
-    roomInfo.curUserId = '001';
     await this.updateRoomInfo(roomId, roomInfo);
 
     // 通知房间信息更新
@@ -326,7 +414,7 @@ export default class RoomService extends Service {
 
     // 通知玩家开始抢地主
     // TODO:
-    nsp.emit(FrontendEvent.onSwitchPlayer, '001', roomInfo.state);
+    nsp.emit(FrontendEvent.onSwitchPlayer, roomInfo.curUserId, roomInfo.state);
   }
 
   /**
@@ -336,12 +424,14 @@ export default class RoomService extends Service {
     let roomInfo: RoomInfo = await global.CACHE.hgetall(CacheKeyBuilder.roomInfo(roomId));
     const content: any = roomInfo as any;
     if (!isEmpty(roomInfo)) {
-      roomInfo.state = Number(content.state);
+      roomInfo.haveFirstBlood = JSON.parse(content[$RoomInfo.haveFirstBlood]);
+      roomInfo.state = JSON.parse((content[$RoomInfo.state]));
       roomInfo.landloadCards = JSON.parse(content[$RoomInfo.landloadCards]);
       roomInfo.lootLandlordIds = JSON.parse(content[$RoomInfo.lootLandlordIds]);
     } else {
       roomInfo = {
         id: roomId,
+        haveFirstBlood: false,
         landlordId: '',
         callLandlordId: '',
         lootLandlordIds: [],
@@ -362,14 +452,27 @@ export default class RoomService extends Service {
   }
 
   /**
+   * 获取最后一条出牌记录
+   */
+  private async getLastCardRecords(roomId: string): Promise<PokerRecord | null> {
+    const recordLenght: number = await global.CACHE.llen(CacheKeyBuilder.roomCardRecords(roomId));
+    const records: string[] = await global.CACHE.lrange(CacheKeyBuilder.roomCardRecords(roomId), recordLenght - 1, recordLenght - 1);
+    if (records.length > 0) {
+      return JSON.parse(records[0]) as PokerRecord;
+    }
+    return null;
+  }
+
+  /**
    * 获取用户信息
    */
   private async getUserInfo(roomId: string, userId: string): Promise<UserInfo> {
     let userInfo: UserInfo = await global.CACHE.hgetall(CacheKeyBuilder.userInfo(roomId, userId));
     const content: any = userInfo as any;
     if (!isEmpty(userInfo)) {
-      userInfo.state = Number(content[$UserInfo.state]);
+      userInfo.state = JSON.parse((content[$UserInfo.state]));
       userInfo.cards = JSON.parse(content[$UserInfo.cards]);
+      userInfo.showCards = JSON.parse(content[$UserInfo.showCards]);
       userInfo.previousUserId = await this.getUserPreviousUser(roomId, userId);
       userInfo.nextUserId = await this.getUserNextUser(roomId, userId);
       userInfo.isLandlord = JSON.parse(content[$UserInfo.isLandlord]);
@@ -379,6 +482,7 @@ export default class RoomService extends Service {
         name: userId,
         state: UserState.NOT_READY,
         isLandlord: false,
+        showCards: [],
         cards: [],
         previousUserId: await this.getUserPreviousUser(roomId, userId),
         nextUserId: await this.getUserNextUser(roomId, userId),
@@ -418,25 +522,6 @@ export default class RoomService extends Service {
       userInfos.push(userInfo);
     }
     return userInfos;
-  }
-
-  /**
-   * 获取socket
-   */
-  private getNsp(roomId: string, isBroadcast = false): any {
-    const { app, ctx } = this as any;
-    if (isBroadcast) {
-      return ctx.socket.broadcast.to(roomId);
-    }
-    ctx.socket.join(roomId);
-    return app.io.of('/');
-  }
-
-  /**
-   * 检查玩家是否在线
-   */
-  public async checkRoomUserState() {
-    console.log('奥利给');
   }
 
   /**
@@ -503,6 +588,25 @@ export default class RoomService extends Service {
   }
 
   /**
+   * 获取socket
+   */
+  private getNsp(roomId: string, isBroadcast = false): any {
+    const { app, ctx } = this as any;
+    if (isBroadcast) {
+      return ctx.socket.broadcast.to(roomId);
+    }
+    ctx.socket.join(roomId);
+    return app.io.of('/');
+  }
+
+  /**
+   * 检查玩家是否在线
+   */
+  public async checkRoomUserState() {
+    console.log('奥利给');
+  }
+
+  /**
    * 更新房间信息
    */
   private async updateRoomInfo(roomId: string, roomInfo: RoomInfo): Promise<void> {
@@ -515,9 +619,10 @@ export default class RoomService extends Service {
   /**
    * 更新房间当前玩家
    */
-  private async updateRoomCurUserId(roomId: string, userId: string): Promise<void> {
+  private async updateRoomCurUserId(roomId: string, userId: string): Promise<string> {
     const nextUserId = await this.getUserNextUser(roomId, userId);
     await this.updatePartRoomInfo(roomId, $RoomInfo.curUserId, nextUserId);
+    return nextUserId;
   }
 
   /**
@@ -534,7 +639,8 @@ export default class RoomService extends Service {
    */
   private async updateUserInfo(roomId: string, userInfo: UserInfo): Promise<void> {
     const userInfoMap: {[index: string]: any} = cloneDeep(userInfo) as any;
-    userInfoMap[$UserInfo.cards] = JSON.stringify(userInfo[$UserInfo.cards]);
+    userInfoMap[$UserInfo.cards] = JSON.stringify(userInfo.cards);
+    userInfoMap[$UserInfo.showCards] = JSON.stringify(userInfo.showCards);
     await global.CACHE.hmset(CacheKeyBuilder.userInfo(roomId, userInfo.id), userInfoMap);
   }
 
@@ -557,6 +663,20 @@ export default class RoomService extends Service {
    */
   private async updateUserNextUser(roomId: string, userId: string, value: string): Promise<void> {
     await global.CACHE.set(CacheKeyBuilder.userNextUser(roomId, userId), value);
+  }
+
+  /**
+   * 添加游戏记录
+   */
+  private async addCardRecord(roomId: string, userId: string, cards: PokerCard[]): Promise<void> {
+    const record = new PokerRecord();
+    record.userId = userId;
+    record.method = PokerMethodDecider.getMethod(cards);
+    record.cards = cards;
+    record.maxPoint = cards[cards.length - 1].points;
+    await global.CACHE.rpush(CacheKeyBuilder.roomCardRecords(roomId), JSON.stringify(record));
+    const nsp = this.getNsp(roomId);
+    nsp.emit(FrontendEvent.onUpdateLastCardRecord, record);
   }
 
 }

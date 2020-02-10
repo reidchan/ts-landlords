@@ -7,6 +7,5 @@ export enum UserState {
   NOT_LOOT_LANDLORD,
   PLAY,
   PASS,
-  DIE,
   GAME_OVER
 }

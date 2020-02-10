@@ -9,7 +9,6 @@ playerStateMap.set(UserState.LOOT_LANDLORD, '抢地主');
 playerStateMap.set(UserState.NOT_LOOT_LANDLORD, '不抢');
 playerStateMap.set(UserState.PLAY, '');
 playerStateMap.set(UserState.PASS, '不要');
-playerStateMap.set(UserState.DIE, '');
 playerStateMap.set(UserState.GAME_OVER, '');
 
 export default playerStateMap;

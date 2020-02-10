@@ -29,9 +29,9 @@ export default class PokerMethodDecider {
       }
     });
 
-    if (cards.length === 0) {
-      return PokerMethod.EMPTY;
-    }
+    // if (cards.length === 0) {
+    //   return PokerMethod.EMPTY;
+    // }
 
     // 单张
     if (cards.length === 1) {

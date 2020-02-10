@@ -4,7 +4,8 @@
 interface OnInitRoomCallbackParams {
   userInfo: UserInfo
   otherUserInfos: {[index: string]: UserInfo}
-  roomInfo: RoomInfo
+  roomInfo: RoomInfo,
+  lastCardRecord: any
 }
 
 interface OnPlayerJoinCallbackParams {

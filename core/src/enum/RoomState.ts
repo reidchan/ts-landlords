@@ -9,8 +9,6 @@ export enum RoomState {
   LOOT_LANDLORD,
   // 游戏开始
   GAME_START,
-  // 打牌中
-  PLAY_CARDS,
   // 游戏结束
   GAME_OVER
 }

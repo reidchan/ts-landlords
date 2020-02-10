@@ -4,4 +4,5 @@ export default {
   state: 'state',
   isLandlord: 'isLandlord',
   cards: 'cards',
+  showCards: 'showCards',
 }

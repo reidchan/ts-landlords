@@ -6,4 +6,6 @@ export default {
   onPlayerReady: 'onPlayerReady',
   onSwitchPlayer: 'onSwitchPlayer',
   onReloadCallLandload: 'onReloadCallLandload',
+  onUpdateLastCardRecord: 'onUpdateLastCardRecord',
+  onGameOver: 'onGameOver',
 };
