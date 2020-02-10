@@ -10,6 +10,7 @@ import $UserInfo from './src/constant/$UserInfo';
 import $RoomInfo from './src/constant/$RoomInfo';
 
 import ArrayUtils from './src/util/ArrayUtils';
+import MathUtils from './src/util/MathUtils';
 
 import Comparer from './src/Comparer';
 import Dealer from './src/Dealer';
@@ -30,6 +31,7 @@ export {
   $RoomInfo,
 
   ArrayUtils,
+  MathUtils,
 
   Comparer,
   Dealer,

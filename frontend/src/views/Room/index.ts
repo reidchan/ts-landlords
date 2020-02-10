@@ -35,9 +35,11 @@ export default class Room extends Vue {
   // P2的出牌状态
   public showP2State: boolean = false;
   // 房间id
-  public roomId!: string;
+  public roomId: string = '';
   // 房间状态
   public roomState: RoomState = RoomState.WAIT;
+  // 当前可执行的玩家
+  public curPlayerId: string = '';
   // socket
   private socket!: SocketIOClient.Socket;
 
@@ -60,8 +62,26 @@ export default class Room extends Vue {
     return this.roomState === RoomState.READY && this.playerMe.state === UserState.NOT_READY;
   }
 
-  public get isShowCards(): boolean {
+  public get isShow(): boolean {
     return this.roomState >= RoomState.CALL_LANDLORD;
+  }
+
+  public get canKnockCard(): boolean {
+    return this.canPlayCard && this.roomState === RoomState.GAME_START;
+  }
+
+  public get canPlayCard(): boolean {
+    return this.playerMe.id === this.curPlayerId;
+  }
+
+  public get canCallLandlord(): boolean {
+    return this.roomState === RoomState.CALL_LANDLORD
+    && this.canPlayCard && this.playerMe.state === UserState.READY;
+  }
+
+  public get canLootLandlord(): boolean {
+    return this.roomState === RoomState.LOOT_LANDLORD
+    && this.canPlayCard && this.playerMe.state === UserState.READY;
   }
 
   /**
@@ -69,6 +89,9 @@ export default class Room extends Vue {
    * @param index 索引
    */
   public onCardClick(index: number): void {
+    if (this.roomState !== RoomState.GAME_START) {
+      return;
+    }
     const playerMe = this.playerMe as Player;
     const card: PokerCard = playerMe.cards[index];
     card.active = !card.active;
@@ -88,6 +111,30 @@ export default class Room extends Vue {
   }
 
   /**
+   * 叫地主按钮点击
+   */
+  public onCallLandlord(): void {
+    const params: CallLandlordParams = {
+      socketId: this.socket.id,
+      roomId: this.roomId,
+      userId: this.playerMe.id,
+    };
+    this.socket.emit(BackendEvent.callLandlord, params);
+  }
+
+  /**
+   * 抢地主按钮点击
+   */
+  public onLootLandlord(): void {
+    const params: LootLandlordParams = {
+      socketId: this.socket.id,
+      roomId: this.roomId,
+      userId: this.playerMe.id,
+    };
+    this.socket.emit(BackendEvent.lootLandlord, params);
+  }
+
+  /**
    * 打出牌
    */
   public knockout() {
@@ -103,7 +150,7 @@ export default class Room extends Vue {
 
   public created() {
     const { roomId, userId } = this.$route.query as unknown as RoomViewQuery;
-    this.socket = io('http://192.168.1.101:7001');
+    this.socket = io('http://127.0.0.1:7001');
 
     if (userId) {
       this.playerMe.id = userId;
@@ -125,6 +172,7 @@ export default class Room extends Vue {
       if (this.playerMe.id === userInfo.id) {
         this.fillPlayer(this.playerMe, userInfo);
       }
+      this.curPlayerId = roomInfo.curUserId;
       this.roomState = roomInfo.state;
     });
 
@@ -141,6 +189,7 @@ export default class Room extends Vue {
     this.socket.on(FrontendEvent.onUpdateRoomInfo, (params: OnUpdateRoomInfoCallbackParams) => {
       console.log('onUpdateRoomInfo...', params);
       this.roomState = params.roomInfo.state;
+      this.curPlayerId = params.roomInfo.curUserId;
     });
 
     this.socket.on(FrontendEvent.onUpdateUserInfo, (params: OnUpdateUserInfoCallbackParams) => {
@@ -168,6 +217,12 @@ export default class Room extends Vue {
       } else {
         this.player2.state = UserState.READY;
       }
+    });
+
+    this.socket.on(FrontendEvent.onSwitchPlayer, (playerId: string, roomState: number) => {
+      console.log('onSwitchPlayer...', playerId, roomState);
+      this.curPlayerId = playerId;
+      this.roomState = roomState;
     });
 
     this.socket.on('connect', () => {
@@ -214,6 +269,7 @@ export default class Room extends Vue {
     player.name = userInfo.name;
     player.state = userInfo.state;
     player.cards = userInfo.cards;
+    player.isLandlord = userInfo.isLandlord;
     if (!isEmpty(player.cards) && player.cards.length > 0) {
       player.cards.sort((a: PokerCard, b: PokerCard) => {
         return b.points - a.points;

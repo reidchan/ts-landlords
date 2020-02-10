@@ -5,12 +5,13 @@
     <div class="middle">
       <div class="p1">
         <div class="figure">
-          <img class="avatar" src="@/assets/img/figure/farmer.png"/>
+          <img v-if="player1.isLandlord" class="avatar" src="@/assets/img/figure/landlord.png"/>
+          <img v-else class="avatar" src="@/assets/img/figure/farmer.png"/>
           <div class="message">
             <p>{{ player1.name }}</p>
           </div>
         </div>
-        <div class="card" v-if="isShowCards">
+        <div class="card" v-if="isShow">
           <img class="poker" src="@/assets/img/poker/back.png"/>
           <p class="count">{{ player1.cards.length }}</p>
         </div>
@@ -22,13 +23,16 @@
           <div class="ready" v-if="isRoomReady">
             <button class="operation-button blue" @click="onClickReady">准备</button>
           </div>
-          <div class="play-card" v-if="showPlayCard">
-            <button class="operation-button blue">要不起</button>
+          <div class="play-card" v-if="canKnockCard">
             <button class="operation-button orange" @click="knockout">出牌</button>
+            <button class="operation-button blue">要不起</button>
           </div>
-          <div class="call-landlord" v-if="showCallLandlord">
-            <button class="operation-button orange">叫地主</button>
-            <button class="operation-button blue">抢地主</button>
+          <div class="call-landlord" v-if="canCallLandlord">
+            <button class="operation-button orange" @click="onCallLandlord">叫地主</button>
+            <button class="operation-button blue">不叫</button>
+          </div>
+          <div class="loot-landlord" v-if="canLootLandlord">
+            <button class="operation-button orange" @click="onLootLandlord">抢地主</button>
             <button class="operation-button blue">不抢</button>
           </div>
         </div>
@@ -84,12 +88,13 @@
       <!-- # 展示区 -->
 
       <div class="p2">
-        <div class="card" v-if="isShowCards">
+        <div class="card" v-if="isShow">
           <img class="poker" src="@/assets/img/poker/back.png"/>
           <p class="count">{{ player2.cards.length }}</p>
         </div>
         <div class="figure">
-          <img class="avatar" src="@/assets/img/figure/farmer.png"/>
+          <img v-if="player2.isLandlord" class="avatar" src="@/assets/img/figure/landlord.png"/>
+          <img v-else class="avatar" src="@/assets/img/figure/farmer.png"/>
           <div class="message">
             <p>{{ player2.name }}</p>
           </div>
@@ -98,7 +103,8 @@
     </div>
     <div class="bottom">
       <div class="figure">
-        <img class="avatar" src="@/assets/img/figure/farmer.png"/>
+        <img v-if="playerMe.isLandlord" class="avatar" src="@/assets/img/figure/landlord.png"/>
+        <img v-else class="avatar" src="@/assets/img/figure/farmer.png"/>
         <div class="message">
           <p>{{ playerMe.name }}</p>
         </div>
@@ -110,7 +116,7 @@
         <div class="not-start" v-if="isRoomWait">
           <p>玩家人数还不够呢，请等待玩家进入...</p>
         </div>
-        <div class="cards" v-if="isShowCards">
+        <div class="cards" v-if="isShow">
           <div class="card-box">
             <div :class="{ card: true, active: card.active }" v-for="(card, index) of playerMe.cards" :key="index" @click="onCardClick(index)">
               <Card :card="card"/>

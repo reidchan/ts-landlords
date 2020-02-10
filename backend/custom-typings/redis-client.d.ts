@@ -4,6 +4,10 @@ declare class ReidsClient {
 
   public get(key: string): Promise<any>;
 
+  public incr(key: string): Promise<number>;
+
+  public incrby(key: string, count: number): Promise<number>;
+
   public del(key: string): void;
 
   public llen(key: string): Promise<number>;

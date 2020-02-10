@@ -12,4 +12,14 @@ export default class RoomController extends Controller {
     await this.service.room.readyUser(params);
   }
 
+  public async callLandlord(ctx: any) {
+    const params = ctx.req.args[0];
+    await this.service.room.callLandlord(params);
+  }
+
+  public async lootLandlord(ctx: any) {
+    const params = ctx.req.args[0];
+    await this.service.room.lootLandlord(params);
+  }
+
 }

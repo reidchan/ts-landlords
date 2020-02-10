@@ -4,4 +4,5 @@ export default {
   onUpdateUserInfo: 'onUpdateUserInfo',
   onPlayerJoin: 'onPlayerJoin',
   onPlayerReady: 'onPlayerReady',
+  onSwitchPlayer: 'onSwitchPlayer',
 };

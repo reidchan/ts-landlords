@@ -9,3 +9,15 @@ declare interface ReadyUserParams {
   roomId: string
   userId: string
 }
+
+declare interface CallLandlordParams {
+  socketId: string
+  roomId: string
+  userId: string
+}
+
+declare interface LootLandlordParams {
+  socketId: string
+  roomId: string
+  userId: string
+}

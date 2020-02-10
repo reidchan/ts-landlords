@@ -8,4 +8,6 @@ export default (app: Application) => {
   const nsp = io.of('/');
   nsp.route(BackendEvent.joinRoom, io.controller.room.joinRoom);
   nsp.route(BackendEvent.readyUser, io.controller.room.readyUser);
+  nsp.route(BackendEvent.callLandlord, io.controller.room.callLandlord);
+  nsp.route(BackendEvent.lootLandlord, io.controller.room.lootLandlord);
 };

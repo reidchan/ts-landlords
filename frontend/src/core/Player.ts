@@ -32,7 +32,8 @@ export default class Player {
     if (this.isSelf && this.state === UserState.NOT_READY) {
       return '';
     }
-    if (this.roomState === RoomState.CALL_LANDLORD && this.state === UserState.READY) {
+    if ((this.roomState === RoomState.CALL_LANDLORD || this.roomState === RoomState.LOOT_LANDLORD)
+      && this.state === UserState.READY) {
       return '';
     }
     return PlayerStateMapping.get(this.state);
