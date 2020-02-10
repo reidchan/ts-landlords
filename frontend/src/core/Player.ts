@@ -29,14 +29,14 @@ export default class Player {
   }
 
   public get stateText(): string {
-    if (this.isSelf && this.state === UserState.NOT_READY) {
+    if (this.state === UserState.NOT_READY) {
       return '';
     }
     if ((this.roomState === RoomState.CALL_LANDLORD || this.roomState === RoomState.LOOT_LANDLORD)
       && this.state === UserState.READY) {
       return '';
     }
-    return PlayerStateMapping.get(this.state);
+    return PlayerStateMapping.get(this.state) as string;
   }
 
   /**

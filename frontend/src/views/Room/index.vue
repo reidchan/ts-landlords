@@ -24,16 +24,16 @@
             <button class="operation-button blue" @click="onClickReady">准备</button>
           </div>
           <div class="play-card" v-if="canKnockCard">
-            <button class="operation-button orange" @click="knockout">出牌</button>
+            <button class="operation-button orange" @click="onKnockOut">出牌</button>
             <button class="operation-button blue">要不起</button>
           </div>
           <div class="call-landlord" v-if="canCallLandlord">
             <button class="operation-button orange" @click="onCallLandlord">叫地主</button>
-            <button class="operation-button blue">不叫</button>
+            <button class="operation-button blue" @click="onNotCallLandlord">不叫</button>
           </div>
           <div class="loot-landlord" v-if="canLootLandlord">
             <button class="operation-button orange" @click="onLootLandlord">抢地主</button>
-            <button class="operation-button blue">不抢</button>
+            <button class="operation-button blue" @click="onNotLootLandlord">不抢</button>
           </div>
         </div>
 

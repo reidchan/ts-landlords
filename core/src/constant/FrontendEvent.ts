@@ -5,4 +5,5 @@ export default {
   onPlayerJoin: 'onPlayerJoin',
   onPlayerReady: 'onPlayerReady',
   onSwitchPlayer: 'onSwitchPlayer',
+  onReloadCallLandload: 'onReloadCallLandload',
 };

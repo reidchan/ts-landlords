@@ -111,7 +111,7 @@ export default class Room extends Vue {
   }
 
   /**
-   * 叫地主按钮点击
+   * 叫地主
    */
   public onCallLandlord(): void {
     const params: CallLandlordParams = {
@@ -123,7 +123,19 @@ export default class Room extends Vue {
   }
 
   /**
-   * 抢地主按钮点击
+   * 不叫地主
+   */
+  public onNotCallLandlord(): void {
+    const params: NotCallLandlordParams = {
+      socketId: this.socket.id,
+      roomId: this.roomId,
+      userId: this.playerMe.id,
+    };
+    this.socket.emit(BackendEvent.notCallLandlord, params);
+  }
+
+  /**
+   * 抢地主
    */
   public onLootLandlord(): void {
     const params: LootLandlordParams = {
@@ -135,9 +147,21 @@ export default class Room extends Vue {
   }
 
   /**
+   * 不抢地主
+   */
+  public onNotLootLandlord(): void {
+    const params: NotLootLandlordParams = {
+      socketId: this.socket.id,
+      roomId: this.roomId,
+      userId: this.playerMe.id,
+    };
+    this.socket.emit(BackendEvent.notLootLandlord, params);
+  }
+
+  /**
    * 打出牌
    */
-  public knockout() {
+  public onKnockOut() {
     const playerMe = this.playerMe as Player;
     // 被选中的卡牌
     const activeCards = playerMe.cards.filter((card: PokerCard) => {
@@ -223,6 +247,10 @@ export default class Room extends Vue {
       console.log('onSwitchPlayer...', playerId, roomState);
       this.curPlayerId = playerId;
       this.roomState = roomState;
+    });
+
+    this.socket.on(FrontendEvent.onReloadCallLandload, ()  => {
+      console.log('onReloadCallLandload...');
     });
 
     this.socket.on('connect', () => {

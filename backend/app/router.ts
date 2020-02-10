@@ -9,5 +9,7 @@ export default (app: Application) => {
   nsp.route(BackendEvent.joinRoom, io.controller.room.joinRoom);
   nsp.route(BackendEvent.readyUser, io.controller.room.readyUser);
   nsp.route(BackendEvent.callLandlord, io.controller.room.callLandlord);
+  nsp.route(BackendEvent.notCallLandlord, io.controller.room.notCallLandlord);
   nsp.route(BackendEvent.lootLandlord, io.controller.room.lootLandlord);
+  nsp.route(BackendEvent.notLootLandlord, io.controller.room.notLootLandlord);
 };

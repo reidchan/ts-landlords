@@ -86,8 +86,7 @@ export default class RoomService extends Service {
     await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.CALL_LANDLORD);
     await this.updatePartRoomInfo(roomId, $RoomInfo.state, RoomState.LOOT_LANDLORD);
     await this.updatePartRoomInfo(roomId, $RoomInfo.callLandlordId, userId);
-    const nextUserId = await this.getUserNextUser(roomId, userId);
-    await this.updatePartRoomInfo(roomId, $RoomInfo.curUserId, nextUserId);
+    await this.updateRoomCurUserId(roomId, userId);
 
     const nsp = this.getNsp(roomId);
     const userInfo = await this.getUserInfo(roomId, userId);
@@ -103,6 +102,53 @@ export default class RoomService extends Service {
   }
 
   /**
+   * 不叫地主
+   */
+  public async notCallLandlord(params: NotCallLandlordParams) {
+    const { roomId, userId } = params;
+    await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.NOT_CALL_LANDLORD);
+    await this.updateRoomCurUserId(roomId, userId);
+
+    const userInfos: UserInfo[] = await this.getAllUserInfos(roomId);
+    const isAllUserNotCallLandlord: boolean = await this.judgeAllUserNotCallLandlord(userInfos);
+
+    const nsp = this.getNsp(roomId);
+    if (isAllUserNotCallLandlord) {
+      const userIds: string[] = await global.CACHE.smembers(CacheKeyBuilder.roomUsers(roomId));
+      await this.resetRoomAndUserInfo(roomId, userIds);
+      await this.startCallLandlord(roomId, userIds);
+      nsp.emit(FrontendEvent.onReloadCallLandload);
+    } else {
+      const userInfo = await this.getUserInfo(roomId, userId);
+      const result: OnUpdateUserInfoCallbackParams = {
+        userInfo,
+      };
+      nsp.emit(FrontendEvent.onUpdateUserInfo, result);
+    }
+    const roomInfo = await this.getRoomInfo(roomId);
+    const result2: OnUpdateRoomInfoCallbackParams = {
+      roomInfo,
+    };
+    nsp.emit(FrontendEvent.onUpdateRoomInfo, result2);
+  }
+
+  /**
+   * 判断是否所有玩家都没叫地主
+   */
+  private async judgeAllUserNotCallLandlord(userInfos: UserInfo[]): Promise<boolean> {
+    let count = 0;
+    for (const userInfo of userInfos) {
+      if (userInfo.state === UserState.NOT_CALL_LANDLORD) {
+        count++;
+      }
+    }
+    if (count === 3) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * 抢地主
    */
   public async lootLandlord(params: LootLandlordParams) {
@@ -110,10 +156,25 @@ export default class RoomService extends Service {
     await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.LOOT_LANDLORD);
     const lootLandlordIds: string[] = JSON.parse(await this.getPartRoomInfo(roomId, $RoomInfo.lootLandlordIds));
     lootLandlordIds.push(userId);
-    const nextUserId = await this.getUserNextUser(roomId, userId);
     await this.updatePartRoomInfo(roomId, $RoomInfo.lootLandlordIds, JSON.stringify(lootLandlordIds));
-    await this.updatePartRoomInfo(roomId, $RoomInfo.curUserId, nextUserId);
+    await this.updateRoomCurUserId(roomId, userId);
+    await this.lootLandlordNotifacation(roomId, userId);
+  }
 
+  /**
+   * 不抢地主
+   */
+  public async notLootLandlord(params: NotLootLandlordParams): Promise<void> {
+    const { roomId, userId } = params;
+    await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.NOT_LOOT_LANDLORD);
+    await this.updateRoomCurUserId(roomId, userId);
+    await this.lootLandlordNotifacation(roomId, userId);
+  }
+
+  /**
+   * 抢地主相关共用逻辑
+   */
+  private async lootLandlordNotifacation(roomId: string, userId: string) {
     let userInfos: UserInfo[] = await this.getAllUserInfos(roomId);
     const canStartGame: boolean = await this.judgeStartGame(userInfos);
     const nsp = this.getNsp(roomId);
@@ -140,6 +201,17 @@ export default class RoomService extends Service {
       roomInfo,
     };
     nsp.emit(FrontendEvent.onUpdateRoomInfo, result);
+  }
+
+  /**
+   * 重置房间和玩家的信息
+   */
+  private async resetRoomAndUserInfo(roomId: string, userIds: string[]): Promise<void> {
+    await this.updatePartRoomInfo(roomId, $RoomInfo.state, RoomState.WAIT);
+    await this.updatePartRoomInfo(roomId, $RoomInfo.curUserId, '');
+    for (const userId of userIds) {
+      await this.updatePartUserInfo(roomId, userId, $UserInfo.state, UserState.READY);
+    }
   }
 
   /**
@@ -438,6 +510,14 @@ export default class RoomService extends Service {
     roomInfoMap[$RoomInfo.landloadCards] = JSON.stringify(roomInfo[$RoomInfo.landloadCards]);
     roomInfoMap[$RoomInfo.lootLandlordIds] = JSON.stringify(roomInfo[$RoomInfo.lootLandlordIds]);
     await global.CACHE.hmset(CacheKeyBuilder.roomInfo(roomId), roomInfoMap);
+  }
+
+  /**
+   * 更新房间当前玩家
+   */
+  private async updateRoomCurUserId(roomId: string, userId: string): Promise<void> {
+    const nextUserId = await this.getUserNextUser(roomId, userId);
+    await this.updatePartRoomInfo(roomId, $RoomInfo.curUserId, nextUserId);
   }
 
   /**
