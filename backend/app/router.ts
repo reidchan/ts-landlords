@@ -1,10 +1,13 @@
 import { Application } from 'egg';
 import { BackendEvent } from 'landlord-core';
 
+const API_PREFIX = '/api/v1';
+
 export default (app: Application) => {
   const { controller, router, io } = app as any;
 
-  router.get('/home', controller.home.index);
+  router.get(API_PREFIX.concat('/home'), controller.home.index);
+
   const nsp = io.of('/');
   nsp.route(BackendEvent.joinRoom, io.controller.room.joinRoom);
   nsp.route(BackendEvent.readyUser, io.controller.room.readyUser);

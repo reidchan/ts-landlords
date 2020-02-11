@@ -36,6 +36,7 @@
     "egg-alinode": "^2.0.1",
     "egg-bin": "^4.11.0",
     "egg-ci": "^1.8.0",
+    "egg-cors": "^2.2.3",
     "egg-mock": "^3.16.0",
     "egg-socket.io": "^4.1.6",
     "eslint": "^6.7.2",

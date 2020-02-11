@@ -44,9 +44,9 @@ export default (appInfo: EggAppInfo) => {
     database: 'landlords',
     synchronize: true,
     logging: false,
-    entities: ['src/app/entity/model/**/*.ts'],
-    migrations: ['src/migration/**/*.ts'],
-    subscribers: ['src/subscriber/**/*.ts'],
+    entities: [ 'src/app/entity/model/**/*.ts' ],
+    migrations: [ 'src/migration/**/*.ts' ],
+    subscribers: [ 'src/subscriber/**/*.ts' ],
   };
 
   config.alinode = {
@@ -54,6 +54,11 @@ export default (appInfo: EggAppInfo) => {
     appid: '83613',
     secret: '5a684817f48b0615413020d79954940996def0c1',
     logdir: '/Users/super2god/logs/alinode',
+  };
+
+  config.cors = {
+    origin: '*',
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH',
   };
 
   // the return config will combines to EggAppConfig

@@ -58,14 +58,7 @@ function getInterface(axiosInstance: any) {
     post: axiosInstance.post.bind(axiosInstance),
     put: axiosInstance.put.bind(axiosInstance),
     patch: axiosInstance.patch.bind(axiosInstance),
-    delete(url: string, query: any) {
-      return axiosInstance.delete(url, {
-        params: query
-      });
-    },
-    deleteWithBody(url: string, data: any) {
-      return axiosInstance.delete(url, { data });
-    },
+    delete: axiosInstance.delete.bind(axiosInstance),
   };
 }
 

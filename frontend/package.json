@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --mode development",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "init": "ln -nsf ../../core node_modules/landlord-core && rm -rf ./node_modules/vuex/types && cp -r ./@types/. ./node_modules/@types"

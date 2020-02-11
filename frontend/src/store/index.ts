@@ -3,10 +3,10 @@ import Vuex from 'vuex';
 
 import user from './user';
 
-const vuex: VueStore = new Vuex.Store({
+Vue.use(Vuex);
+
+export default new Vuex.Store({
   modules: {
     user
   },
-}) as any;
-
-export default vuex;
+});
