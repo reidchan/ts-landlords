@@ -17,6 +17,7 @@ import Dealer from './src/Dealer';
 import PokerCard from './src/PokerCard';
 import PokerMethodDecider from './src/PokerMethodDecider';
 import PokerRecord from './src/PokerRecord';
+import PokerComparer from './src/PokerComparer';
 
 export {
   PokerType,
@@ -38,4 +39,5 @@ export {
   PokerCard,
   PokerMethodDecider,
   PokerRecord,
+  PokerComparer,
 }

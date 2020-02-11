@@ -183,12 +183,17 @@ export default class RoomService extends Service {
     const nextUserId: string = await this.updateRoomCurUserId(roomId, userId);
     await this.updatePartUserInfo(roomId, nextUserId, $UserInfo.state, UserState.PLAY);
 
+    const userIds: string[] = [];
+    userIds.push(userId);
+    userIds.push(nextUserId);
     const nsp = this.getNsp(roomId);
-    const userInfo = await this.getUserInfo(roomId, userId);
-    const result: OnUpdateUserInfoCallbackParams = {
-      userInfo,
-    };
-    nsp.emit(FrontendEvent.onUpdateUserInfo, result);
+    for (const userId of userIds) {
+      const userInfo = await this.getUserInfo(roomId, userId);
+      const result: OnUpdateUserInfoCallbackParams = {
+        userInfo,
+      };
+      nsp.emit(FrontendEvent.onUpdateUserInfo, result);
+    }
     nsp.emit(FrontendEvent.onSwitchPlayer, nextUserId, RoomState.GAME_START);
   }
 
@@ -197,14 +202,6 @@ export default class RoomService extends Service {
    */
   public async knockOut(params: KnockOutParams): Promise<void> {
     const { roomId, userId, activeCards } = params;
-    // TODO: 错误时的提示
-    // const curLastCard = activeCards[activeCards.length - 1] as PokerCard;
-    // const method: PokerMethod = PokerMethodDecider.getMethod(activeCards);
-    // const lastCardRecords = await this.getLastCardRecords(roomId);
-    // if (lastCardRecords) {
-    // if (method !== lastCardRecords.method || curLastCard.points <= lastCardRecords.maxPoint) {
-    // }
-    // }
     const haveFirstBlood = await JSON.parse(await this.getPartRoomInfo(roomId, $RoomInfo.haveFirstBlood));
     if (!haveFirstBlood) {
       await this.updatePartRoomInfo(roomId, $RoomInfo.haveFirstBlood, true);
@@ -222,12 +219,17 @@ export default class RoomService extends Service {
     const nextUserId: string = await this.updateRoomCurUserId(roomId, userId);
     await this.updatePartUserInfo(roomId, nextUserId, $UserInfo.state, UserState.PLAY);
 
+    const userIds: string[] = [];
+    userIds.push(userId);
+    userIds.push(nextUserId);
     // 更新用户信息
-    const userInfo = await this.getUserInfo(roomId, userId);
-    const result: OnUpdateUserInfoCallbackParams = {
-      userInfo,
-    };
-    nsp.emit(FrontendEvent.onUpdateUserInfo, result);
+    for (const userId of userIds) {
+      const userInfo = await this.getUserInfo(roomId, userId);
+      const result: OnUpdateUserInfoCallbackParams = {
+        userInfo,
+      };
+      nsp.emit(FrontendEvent.onUpdateUserInfo, result);
+    }
     // 更新房间信息
     const roomInfo = await this.getRoomInfo(roomId);
     const result2: OnUpdateRoomInfoCallbackParams = {

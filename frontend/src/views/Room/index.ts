@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 
 import Player from '@/core/Player';
 import {
-  PokerMethod, RoomState, UserState,
+  PokerMethod, RoomState, UserState, PokerComparer,
   FrontendEvent, BackendEvent,
   PokerCard, PokerMethodDecider, PokerRecord } from 'landlord-core';
 import Card from '@/components/Card/index.vue';
@@ -203,37 +203,23 @@ export default class Room extends Vue {
     });
     console.log('activeCards =>', activeCards);
     try {
-      const method: PokerMethod = PokerMethodDecider.getMethod(activeCards);
-      console.log('method =>', method);
+      PokerComparer.compare(this.playerMe.id, activeCards, this.lastCardRecord);
       const params: KnockOutParams = {
         activeCards,
         socketId: this.socket.id,
         roomId: this.roomId,
         userId: this.playerMe.id,
       };
-      const curMaxPoint: number = activeCards[activeCards.length - 1].points;
-      if (!this.lastCardRecord || this.lastCardRecord.method === method
-        || this.lastCardRecord.userId === this.playerMe.id) {
-        if (this.lastCardRecord && this.lastCardRecord.userId !== this.playerMe.id) {
-          if (curMaxPoint <= this.lastCardRecord.maxPoint) {
-            window.alert('你的点数不够大噢');
-            this.resetCardsState();
-            return;
-          }
-        }
-        this.socket.emit(BackendEvent.knockOut, params);
-      } else {
-        window.alert('你的出牌不符合规则');
-        this.resetCardsState();
-      }
+      this.socket.emit(BackendEvent.knockOut, params);
     } catch (error) {
       window.alert(error.message);
+      this.resetCardsState();
     }
   }
 
   public created() {
     const { roomId, userId } = this.$route.query as unknown as RoomViewQuery;
-    this.socket = io('http://192.168.1.102:7001');
+    this.socket = io('http://127.0.0.1:7001');
 
     if (userId) {
       this.playerMe.id = userId;
@@ -339,19 +325,6 @@ export default class Room extends Vue {
     window.onbeforeunload = () => {
       this.socket.disconnect();
     };
-    // this.playerMe.cards = this.playerMe.cards.map((card: PokerCard, index: number) =>  {
-    //   card.style  = {
-    //     left: `-${60 * index}px`
-    //   };
-    //   return card;
-    // });
-
-    // this.player2.cards.map((card: PokerCard, index: number) =>  {
-    //   card.style  = {
-    //     right: `-${20 * index}px`
-    //   };
-    //   return card;
-    // });
   }
 
   private fillRoomInfo(roomInfo: RoomInfo): void {
