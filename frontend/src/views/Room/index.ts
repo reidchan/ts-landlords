@@ -1,12 +1,13 @@
 import io from 'socket.io-client';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { isEmpty } from 'lodash';
+import { Toast } from 'vant';
 
 import Player from '@/core/Player';
 import {
-  PokerMethod, RoomState, UserState, PokerComparer,
+  RoomState, UserState, PokerComparer,
   FrontendEvent, BackendEvent,
-  PokerCard, PokerMethodDecider, PokerRecord } from 'landlord-core';
+  PokerCard, PokerRecord } from 'landlord-core';
 import Card from '@/components/Card/index.vue';
 
 @Component({
@@ -212,7 +213,7 @@ export default class Room extends Vue {
       };
       this.socket.emit(BackendEvent.knockOut, params);
     } catch (error) {
-      window.alert(error.message);
+      Toast(error.message);
       this.resetCardsState();
     }
   }

@@ -1,6 +1,7 @@
 <template>
   <div class="room">
     <div class="top">
+      <van-button type="info" size="small">返回大厅</van-button>
     </div>
     <div class="middle">
       <div class="p1">

@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "install-core": "ln -nsf ../../core node_modules/landlord-core"
+    "init": "ln -nsf ../../core node_modules/landlord-core && rm -rf ./node_modules/vuex/types && cp -r ./@types/. ./node_modules/@types"
   },
   "dependencies": {
     "core-js": "^3.3.2",
@@ -25,12 +25,15 @@
     "@vue/cli-plugin-typescript": "^4.0.0",
     "@vue/cli-plugin-vuex": "^4.0.0",
     "@vue/cli-service": "^4.0.0",
+    "axios": "^0.19.2",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
     "lodash": "^4.17.15",
     "nanoid": "^2.1.10",
+    "postcss-plugin-px2rem": "^0.8.1",
     "socket.io-client": "2.1.1",
     "typescript": "~3.5.3",
+    "vant": "^2.4.7",
     "vue-template-compiler": "^2.6.10"
   }
 }
