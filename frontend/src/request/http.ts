@@ -11,20 +11,11 @@ const axios = ax.create({
 
 interceptRequest(axios);
 
-// v1接口返回的body结构：
-//
-// response = {
-//   data: {
-//     data: {},
-//     code: 200,
-//     message: 'succeed'
-//   }
-// }
 axios.interceptors.response.use(
   async (response) => {
     const body = response.data;
-    const { data, message } = body;
-    if (message && message !== 'succeed') {
+    const { success, data, message } = body;
+    if (!success) {
       Toast(message);
     }
     return data;

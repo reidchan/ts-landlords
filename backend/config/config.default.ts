@@ -61,8 +61,16 @@ export default (appInfo: EggAppInfo) => {
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH',
   };
 
-  // the return config will combines to EggAppConfig
+  const wrongProcessor = {
+    onerror: {
+      all(err: Error, ctx: any) {
+        ctx.fail(err.message);
+      },
+    },
+  };
+
   return {
+    ...wrongProcessor,
     ...config,
     ...bizConfig,
   };

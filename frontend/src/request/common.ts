@@ -37,11 +37,14 @@ function getResponseInterceptor() {
       case 401:
         await Dialog.alert({ message: '身份过期，请重新进入游戏～' });
         break;
-      default:
+      case 500:
         Toast(message || `请求失败（${status}）`);
         break;
+      default:
+        Toast(`未知错误（${status}）`);
+        break;
     }
-    return Promise.reject(error);
+    return Promise.reject(new Error(message));
   };
 }
 
