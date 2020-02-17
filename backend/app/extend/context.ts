@@ -9,12 +9,12 @@ const newContext: any = {
     this.status = 200;
   },
 
-  fail(message = null) {
+  fail(message = null, status = 500) {
     this.body = JSON.stringify({
       success: false,
       message,
     });
-    this.status = 500;
+    this.status = status;
   },
 
 };

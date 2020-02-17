@@ -11,6 +11,10 @@ const plugin: EggPlugin = {
     enable: true,
     package: 'egg-socket.io',
   },
+  jwt: {
+    enable: true,
+    package: 'egg-jwt',
+  },
   alinode: {
     enable: false,
     package: 'egg-alinode',

@@ -1,5 +1,7 @@
 import RouteWhiteList from './route-white-list';
 import { Dialog, Toast } from 'vant';
+import UserStore from '@/store/user';
+import GlobalStore from '@/store/global';
 
 /**
  * 拦截请求
@@ -7,9 +9,9 @@ import { Dialog, Toast } from 'vant';
 function interceptRequest(axiosInstance: any) {
   axiosInstance.interceptors.request.use(
     (config: any) => {
-      const token = window.localStorage.getItem('access-token');
-      if (token) {
-        config.headers.common['Authorization'] = `Bearer ${token}`;
+      GlobalStore.addReqCount();
+      if (UserStore.token) {
+        config.headers.common.Authorization = `Bearer ${UserStore.token}`;
       } else { // 没有token
         if (RouteWhiteList.every((path) => config.url.indexOf(path) === -1)) { // 而且不是免token接口
           Dialog.alert({
@@ -30,12 +32,13 @@ function interceptRequest(axiosInstance: any) {
  */
 function getResponseInterceptor() {
   return async (error: any) => {
+    GlobalStore.removeReqCount();
     const { data: body, status } = error.response;
     const { message } = body;
     // 判断状态码
     switch (status) {
       case 401:
-        await Dialog.alert({ message: '身份过期，请重新进入游戏～' });
+        await Dialog.alert({ message: '请先登录噢～' });
         break;
       case 500:
         Toast(message || `请求失败（${status}）`);

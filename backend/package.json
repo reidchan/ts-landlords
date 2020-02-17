@@ -29,6 +29,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.149",
     "@types/mocha": "^2.2.40",
+    "@types/nanoid": "^2.1.0",
     "@types/node": "^7.0.12",
     "@types/supertest": "^2.0.0",
     "autod": "^3.0.1",
@@ -37,12 +38,14 @@
     "egg-bin": "^4.11.0",
     "egg-ci": "^1.8.0",
     "egg-cors": "^2.2.3",
+    "egg-jwt": "^3.1.7",
     "egg-mock": "^3.16.0",
     "egg-socket.io": "^4.1.6",
     "eslint": "^6.7.2",
     "eslint-config-egg": "^8.0.0",
     "ioredis": "^4.14.1",
     "mysql": "^2.18.1",
+    "nanoid": "^2.1.11",
     "tslib": "^1.9.0",
     "typeorm": "^0.2.22",
     "typescript": "^3.0.0"

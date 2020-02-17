@@ -1,6 +1,8 @@
 declare namespace UserStore {
-  interface Store {
-    info: UserInfo | null
-    token: string | null
+  
+  export interface UserInfo {
+    id: string;
+    name: string;
   }
+
 }

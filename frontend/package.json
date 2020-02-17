@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve --mode development",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "init": "ln -nsf ../../core node_modules/landlord-core && rm -rf ./node_modules/vuex/types && cp -r ./@types/. ./node_modules/@types"
+    "init": "ln -nsf ../../core node_modules/landlord-core"
   },
   "dependencies": {
     "core-js": "^3.3.2",
@@ -34,6 +34,8 @@
     "socket.io-client": "2.1.1",
     "typescript": "~3.5.3",
     "vant": "^2.4.7",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "vuex-class-modules": "^1.1.2",
+    "vuex-persistedstate": "^2.7.1"
   }
 }

@@ -20,11 +20,7 @@ export default (appInfo: EggAppInfo) => {
     init: {},
     namespace: {
       '/': {
-        connectionMiddleware: [],
-        packetMiddleware: [],
-      },
-      '/example': {
-        connectionMiddleware: [],
+        connectionMiddleware: [ 'authentication' ],
         packetMiddleware: [],
       },
     },
@@ -49,6 +45,10 @@ export default (appInfo: EggAppInfo) => {
     subscribers: [ 'src/subscriber/**/*.ts' ],
   };
 
+  config.jwt = {
+    secret: '2gzhvbi7qbsc',
+  };
+
   config.alinode = {
     server: 'wss://agentserver.node.aliyun.com:8080',
     appid: '83613',
@@ -64,7 +64,11 @@ export default (appInfo: EggAppInfo) => {
   const wrongProcessor = {
     onerror: {
       all(err: Error, ctx: any) {
-        ctx.fail(err.message);
+        if (err.name === 'UnauthorizedError') {
+          ctx.fail('鉴权信息有问题，请重新登录', 401);
+        } else {
+          ctx.fail(err.message);
+        }
       },
     },
   };
