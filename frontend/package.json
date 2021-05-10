@@ -28,7 +28,7 @@
     "axios": "^0.19.2",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "nanoid": "^2.1.10",
     "postcss-plugin-px2rem": "^0.8.1",
     "socket.io-client": "2.1.1",
